@@ -1,3 +1,5 @@
+![Lead Pipe Software Logo](LeadPipeSoftwareLogoColor.png)
+
 # LeadPipe RabbitHole
 
 RabbitHole is a RabbitMQ message utility. It can:
