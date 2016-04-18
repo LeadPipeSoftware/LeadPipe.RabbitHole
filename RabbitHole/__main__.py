@@ -1,20 +1,21 @@
 """RabbitHole: RabbitHole is a RabbitMQ message utility."""
 
+from __future__ import print_function
 import sys
 import argparse
-
 import message as msg
 import rabbitmq as rabbit
 
-program_name = 'RabbitHole'
-program_version = '1.0.0'
 
-authorization_string_guest = 'Basic Z3Vlc3Q6Z3Vlc3Q='  # guest/guest
-authorization_string_rabbit = 'Basic cmFiYml0OnJhYmJpdA=='  # rabbit/rabbit
+PROGRAM_NAME = 'RabbitHole'
+PROGRAM_VERSION = '1.0.0'
 
-default_rabbitmq_host_url = 'http://localhost'
-default_rabbitmq_port = 15672
-default_rabbitmq_vhost = '%2F'
+AUTHORIZATION_STRING_GUEST = 'Basic Z3Vlc3Q6Z3Vlc3Q='  # guest/guest
+AUTHORIZATION_STRING_RABBIT = 'Basic cmFiYml0OnJhYmJpdA=='  # rabbit/rabbit
+
+DEFAULT_RABBITMQ_HOST_URL = 'http://localhost'
+DEFAULT_RABBITMQ_PORT = 15672
+DEFAULT_RABBITMQ_VHOST = '%2F'
 
 
 def main(args=None):
@@ -31,7 +32,7 @@ def main(args=None):
     elif args.command == 'queue':
         queue(args)
 
-    print '\033[0;32;40m+ \033[0mDone!\033[0m\n'  # Make sure we didn't jack with the user's terminal colors
+    print('\033[0;32;40m+ \033[0mDone!\033[0m\n')  # Make sure we didn't jack with the user's terminal colors
     sys.exit()
 
 
@@ -44,10 +45,10 @@ def parse_command_line_arguments():
     parser = argparse.ArgumentParser(add_help=True, description='A RabbitMQ message utility.', version='1.0')
 
     # Common arguments
-    parser.add_argument('-r', '--rabbit_host_url', default=default_rabbitmq_host_url, help='the RabbitMQ host URL')
-    parser.add_argument('-p', '--rabbit_port', type=int, default=default_rabbitmq_port, help='the RabbitMQ port')
-    parser.add_argument('-s', '--rabbit_vhost', default=default_rabbitmq_vhost, help='the RabbitMQ vhost name')
-    parser.add_argument('-z', '--rabbit_authorization_string', default=authorization_string_rabbit,
+    parser.add_argument('-r', '--rabbit_host_url', default=DEFAULT_RABBITMQ_HOST_URL, help='the RabbitMQ host URL')
+    parser.add_argument('-p', '--rabbit_port', type=int, default=DEFAULT_RABBITMQ_PORT, help='the RabbitMQ port')
+    parser.add_argument('-s', '--rabbit_vhost', default=DEFAULT_RABBITMQ_VHOST, help='the RabbitMQ vhost name')
+    parser.add_argument('-z', '--rabbit_authorization_string', default=AUTHORIZATION_STRING_RABBIT,
                         help='the authorization string for the RabbitMQ request header')
     parser.add_argument('--simulate', action='store_true')
     parser.add_argument('--verbose', action='store_true')
@@ -102,19 +103,19 @@ def display_welcome(args):
     # Cyan	        36		                    Cyan	    46
     # White	        37                 			White	    47
 
-    print '\033[0;33;40m{0} v{1}\033[0m'.format(program_name, program_version)
-    print '-' * 80
+    print('\033[0;33;40m{0} v{1}\033[0m'.format(PROGRAM_NAME, PROGRAM_VERSION))
+    print('-' * 80)
 
     if args.verbose:
-        print '\033[0;36;40m   Host URL:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_host_url)
-        print '\033[0;36;40m       Port:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_port)
-        print '\033[0;36;40m      VHost:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_vhost)
-        print '\033[0;36;40mAuth String:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_authorization_string)
-        print '-' * 80
+        print('\033[0;36;40m   Host URL:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_host_url))
+        print('\033[0;36;40m       Port:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_port))
+        print('\033[0;36;40m      VHost:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_vhost))
+        print('\033[0;36;40mAuth String:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_authorization_string))
+        print('-' * 80)
 
     if args.simulate:
-        print 'Output in \033[0;35;40mthis color\033[0m indicates a simulated step!'
-        print '-' * 80
+        print('Output in \033[0;35;40mthis color\033[0m indicates a simulated step!')
+        print('-' * 80)
 
 
 def snag(args):
@@ -125,19 +126,24 @@ def snag(args):
     """
 
     if args.verbose:
-        print '\033[0;36;40mMessage Count:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_count)
-        print '\033[0;36;40m Source Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_queue)
-        print '\033[0;36;40m    Save File:\033[0m \033[0;37;40m{0}\033[0m'.format(args.save_file)
-        print '-' * 80
+        print('\033[0;36;40mMessage Count:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_count))
+        print('\033[0;36;40m Source Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_queue))
+        print('\033[0;36;40m    Save File:\033[0m \033[0;37;40m{0}\033[0m'.format(args.save_file))
+        print('-' * 80)
 
     if args.simulate:
-        print '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
-                                                                                                    args.message_source_queue)
-        print '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Save RabbitMQ messages to {0}...'.format(args.save_file)
+        print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
+                                                                                                     args.message_source_queue))
+        print(
+        '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Save RabbitMQ messages to {0}...'.format(args.save_file))
     else:
-        messages = rabbit.get_rabbit_messages_from_queue(args.message_count, args.rabbit_host_url, args.rabbit_port,
-                                                  args.rabbit_vhost, args.message_source_queue,
-                                                  args.rabbit_authorization_string, args.verbose)
+        messages = rabbit.get_rabbit_messages_from_queue(args.message_count,
+                                                         args.rabbit_host_url,
+                                                         args.rabbit_port,
+                                                         args.rabbit_vhost,
+                                                         args.message_source_queue,
+                                                         args.rabbit_authorization_string,
+                                                         args.verbose)
         # save_rabbit_messages_to_file(messages, args.save_file)
 
 
@@ -149,22 +155,31 @@ def replay(args):
     """
 
     if args.verbose:
-        print '\033[0;36;40m    Message Count:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_count)
-        print '\033[0;36;40m     Source Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_queue)
-        print '\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_destination_queue)
-        print '-' * 80
+        print('\033[0;36;40m    Message Count:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_count))
+        print('\033[0;36;40m     Source Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_queue))
+        print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_destination_queue))
+        print('-' * 80)
 
     if args.simulate:
-        print '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
-                                                                                                    args.message_source_queue)
-        print '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Publish messages to {0}...'.format(
-            args.rabbit_destination_queue)
+        print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
+                                                                                                     args.message_source_queue))
+        print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Publish messages to {0}...'.format(
+            args.rabbit_destination_queue))
     else:
-        messages = rabbit.get_rabbit_messages_from_queue(args.message_count, args.rabbit_host_url, args.rabbit_port,
-                                                  args.rabbit_vhost, args.message_source_queue,
-                                                  args.rabbit_authorization_string, args.verbose)
-        rabbit.publish_messages(messages, args.rabbit_host_url, args.rabbit_port, args.rabbit_vhost,
-                         args.rabbit_authorization_string, args.rabbit_destination_queue, args.verbose)
+        messages = rabbit.get_rabbit_messages_from_queue(args.message_count,
+                                                         args.rabbit_host_url,
+                                                         args.rabbit_port,
+                                                         args.rabbit_vhost,
+                                                         args.message_source_queue,
+                                                         args.rabbit_authorization_string,
+                                                         args.verbose)
+        rabbit.publish_messages(messages,
+                                args.rabbit_host_url,
+                                args.rabbit_port,
+                                args.rabbit_vhost,
+                                args.rabbit_authorization_string,
+                                args.rabbit_destination_queue,
+                                args.verbose)
 
 
 def queue(args):
@@ -175,13 +190,18 @@ def queue(args):
     """
 
     if args.verbose:
-        print '\033[0;36;40m      Source File:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_file)
-        print '\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_destination_queue)
-        print '-' * 80
+        print('\033[0;36;40m      Source File:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_file))
+        print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_destination_queue))
+        print('-' * 80)
 
     messages = msg.get_rabbit_messages_from_file(args.message_source_file, args.verbose)
-    rabbit.publish_messages(messages, args.rabbit_host_url, args.rabbit_port, args.rabbit_vhost,
-                            args.rabbit_authorization_string, args.rabbit_destination_queue, args.verbose,
+    rabbit.publish_messages(messages,
+                            args.rabbit_host_url,
+                            args.rabbit_port,
+                            args.rabbit_vhost,
+                            args.rabbit_authorization_string,
+                            args.rabbit_destination_queue,
+                            args.verbose,
                             args.simulate)
 
 
@@ -200,4 +220,4 @@ def get_first(iterable, default=None):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

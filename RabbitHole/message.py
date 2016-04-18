@@ -1,5 +1,6 @@
 """Functions related to RabbitMQ."""
 
+from __future__ import print_function
 import json
 import os.path
 import sys
@@ -20,23 +21,26 @@ def save_rabbit_messages_to_file(messages, save_file):
     #    file_to_save.write(messages)
 
 
-def get_rabbit_messages_from_file(message_file, verbose=False):
+def get_rabbit_messages_from_file(message_file_name, verbose=False):
     """Gets messages from a JSON file.
 
-    :param message_file: The JSON file containing the message.
+    :param message_file_name: The full path and name of the JSON file containing the message.
     :param verbose: If True, prints verbose messages.
     :return: The message contained in the file.
     """
 
-    print '\033[0;32;40m+ \033[0mGetting messages from {0}'.format(message_file)
+    print('\033[0;32;40m+ \033[0mGetting messages from {0}'.format(message_file_name))
 
-    if not os.path.isfile(message_file):
-        print '\033[1;31;40m+ ERROR: \033[0m{0} not found!'.format(message_file)
-        sys.exit(1)
+    if not os.path.isfile(message_file_name):
+        print('\033[1;31;40m+ ERROR: \033[0m{0} not found!'.format(message_file_name))
+        raise IOError()
 
-    with open(message_file) as json_data:
-        d = json.load(json_data)
-        return [d]
+    try:
+        with open(message_file_name) as json_data:
+            d = json.load(json_data)
+            return [d]
+    except:
+        return None
 
 
 def get_source_queue(message):
