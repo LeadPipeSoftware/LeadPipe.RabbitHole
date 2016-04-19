@@ -8,13 +8,23 @@ import message as msg
 
 
 # Define the headers to strip out before replaying a message...
-NSERVICEBUS_RUNTIME_HEADERS = ['NServiceBus.FLRetries', 'NServiceBus.Retries']
-NSERVICEBUS_DIAGNOSTIC_HEADERS = ['$.diagnostics.originating.hostid', '$.diagnostics.hostdisplayname',
-                                  '$.diagnostics.hostid', '$.diagnostics.license.expired']
-NSERVICEBUS_AUDIT_HEADERS = ['NServiceBus.Version', 'NServiceBus.TimeSent', 'NServiceBus.EnclosedMessageTypes',
-                             'NServiceBus.ProcessingStarted', 'NServiceBus.ProcessingEnded',
-                             'NServiceBus.OriginatingAddress', 'NServiceBus.ProcessingEndpoint',
-                             'NServiceBus.ProcessingMachine']
+NSERVICEBUS_RUNTIME_HEADERS = [
+    'NServiceBus.FLRetries',
+    'NServiceBus.Retries']
+NSERVICEBUS_DIAGNOSTIC_HEADERS = [
+    '$.diagnostics.originating.hostid',
+    '$.diagnostics.hostdisplayname',
+    '$.diagnostics.hostid',
+    '$.diagnostics.license.expired']
+NSERVICEBUS_AUDIT_HEADERS = [
+    'NServiceBus.Version',
+    'NServiceBus.TimeSent',
+    'NServiceBus.EnclosedMessageTypes',
+    'NServiceBus.ProcessingStarted',
+    'NServiceBus.ProcessingEnded',
+    'NServiceBus.OriginatingAddress',
+    'NServiceBus.ProcessingEndpoint',
+    'NServiceBus.ProcessingMachine']
 NSERVICEBUS_ERROR_HEADERS = ['NServiceBus.FailedQ']
 
 
@@ -123,8 +133,9 @@ def publish_messages(messages,
         if destination_queue is None:
             destination_queue = msg.get_source_queue(message)
 
-        print('\033[0;32;40m+ \033[0m{0} of {1} - Requeueing message to {2}'.format(processed_messages, len(messages),
-                                                                                     destination_queue))
+        print('\033[0;32;40m+ \033[0m{0} of {1} - Requeueing message to {2}'.format(processed_messages,
+                                                                                    len(messages),
+                                                                                    destination_queue))
 
         message = msg.scrub_message(message, NSERVICEBUS_RUNTIME_HEADERS)
         message = msg.scrub_message(message, NSERVICEBUS_DIAGNOSTIC_HEADERS)

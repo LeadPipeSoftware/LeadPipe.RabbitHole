@@ -48,7 +48,9 @@ def parse_command_line_arguments():
     parser.add_argument('-r', '--rabbit_host_url', default=DEFAULT_RABBITMQ_HOST_URL, help='the RabbitMQ host URL')
     parser.add_argument('-p', '--rabbit_port', type=int, default=DEFAULT_RABBITMQ_PORT, help='the RabbitMQ port')
     parser.add_argument('-s', '--rabbit_vhost', default=DEFAULT_RABBITMQ_VHOST, help='the RabbitMQ vhost name')
-    parser.add_argument('-z', '--rabbit_authorization_string', default=AUTHORIZATION_STRING_RABBIT,
+    parser.add_argument('-z',
+                        '--rabbit_authorization_string',
+                        default=AUTHORIZATION_STRING_RABBIT,
                         help='the authorization string for the RabbitMQ request header')
     parser.add_argument('--simulate', action='store_true')
     parser.add_argument('--verbose', action='store_true')
@@ -59,25 +61,35 @@ def parse_command_line_arguments():
     snag_parser = subparsers.add_parser('snag',
                                         help='Snags messages from a queue and saves them to a JSON-formatted file')
 
-    snag_parser.add_argument('-q', '--message_source_queue', required=True,
+    snag_parser.add_argument('-q',
+                             '--message_source_queue',
+                             required=True,
                              help='The name of the RabbitMQ source queue to get the messages from')
     snag_parser.add_argument('-m', '--message_count', required=True, help='The number of messages to requeue')
-    snag_parser.add_argument('-a', '--save_file', required=True,
+    snag_parser.add_argument('-a',
+                             '--save_file',
+                             required=True,
                              help='the file to save the JSON message to - PREVENTS RE-QUEUEING')
 
     # Replay command
     replay_parser = subparsers.add_parser('replay', help='Replays messages in a queue')
 
-    replay_parser.add_argument('-q', '--message_source_queue', required=True,
+    replay_parser.add_argument('-q',
+                               '--message_source_queue',
+                               required=True,
                                help='The name of the RabbitMQ source queue to get the messages from')
     replay_parser.add_argument('-m', '--message_count', required=True, help='The number of messages to requeue')
-    replay_parser.add_argument('-d', '--rabbit_destination_queue', required=True,
+    replay_parser.add_argument('-d',
+                               '--rabbit_destination_queue',
+                               required=True,
                                help='The name of the RabbitMQ destination queue')
 
     # Queue command
     queue_parser = subparsers.add_parser('queue', help='Sends messages to a queue from a JSON-formatted file')
 
-    queue_parser.add_argument('-d', '--rabbit_destination_queue', required=True,
+    queue_parser.add_argument('-d',
+                              '--rabbit_destination_queue',
+                              required=True,
                               help='The name of the RabbitMQ destination queue')
     queue_parser.add_argument('-f', '--message_source_file', required=True, help='the message source file')
 
@@ -133,7 +145,7 @@ def snag(args):
 
     if args.simulate:
         print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
-                                                                                                     args.message_source_queue))
+                                                                                                    args.message_source_queue))
         print(
         '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Save RabbitMQ messages to {0}...'.format(args.save_file))
     else:
@@ -162,7 +174,7 @@ def replay(args):
 
     if args.simulate:
         print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
-                                                                                                     args.message_source_queue))
+                                                                                                    args.message_source_queue))
         print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Publish messages to {0}...'.format(
             args.rabbit_destination_queue))
     else:
