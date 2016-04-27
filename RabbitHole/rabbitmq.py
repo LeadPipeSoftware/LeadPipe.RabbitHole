@@ -123,7 +123,7 @@ def publish_messages(messages,
     """
 
     if not messages:
-        print('\033[0;32;40m+ \033[0m No messages to process!')
+        print('\033[0;32;40m+ \033[0mNo messages to process!')
         return
 
     rabbit_request_headers = {'Content-type': 'application/json', 'Authorization': rabbit_authorization_string}

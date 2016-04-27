@@ -144,21 +144,16 @@ def snag(args):
         print('\033[0;36;40m    Save File:\033[0m \033[0;37;40m{0}\033[0m'.format(args.save_file))
         print('-' * 80)
 
-    if args.simulate:
-        print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
-                                                                                                    args.message_source_queue))
-        print(
-        '\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Save RabbitMQ messages to {0}...'.format(args.save_file))
-    else:
-        messages = rabbit.get_rabbit_messages_from_queue(args.message_count,
-                                                         args.rabbit_host_url,
-                                                         args.rabbit_port,
-                                                         args.rabbit_vhost,
-                                                         args.message_source_queue,
-                                                         args.rabbit_authorization_string,
-                                                         True,
-                                                         args.verbose)
-        msg.save_rabbit_messages_to_file(messages, args.save_file)
+    messages = rabbit.get_rabbit_messages_from_queue(args.message_count,
+                                                     args.rabbit_host_url,
+                                                     args.rabbit_port,
+                                                     args.rabbit_vhost,
+                                                     args.message_source_queue,
+                                                     args.rabbit_authorization_string,
+                                                     True,
+                                                     args.verbose)
+
+    msg.save_rabbit_messages_to_file(messages, args.save_file, args.simulate)
 
 
 def replay(args):
@@ -174,27 +169,23 @@ def replay(args):
         print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_destination_queue))
         print('-' * 80)
 
-    if args.simulate:
-        print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Get {0} messages from {1}...'.format(args.message_count,
-                                                                                                    args.message_source_queue))
-        print('\033[0;32;40m+ \033[0;35;40m(simulating)\033[0m Publish messages to {0}...'.format(
-            args.rabbit_destination_queue))
-    else:
-        messages = rabbit.get_rabbit_messages_from_queue(args.message_count,
-                                                         args.rabbit_host_url,
-                                                         args.rabbit_port,
-                                                         args.rabbit_vhost,
-                                                         args.message_source_queue,
-                                                         args.rabbit_authorization_string,
-                                                         True,
-                                                         args.verbose)
-        rabbit.publish_messages(messages,
-                                args.rabbit_host_url,
-                                args.rabbit_port,
-                                args.rabbit_vhost,
-                                args.rabbit_authorization_string,
-                                args.rabbit_destination_queue,
-                                args.verbose)
+    messages = rabbit.get_rabbit_messages_from_queue(args.message_count,
+                                                     args.rabbit_host_url,
+                                                     args.rabbit_port,
+                                                     args.rabbit_vhost,
+                                                     args.message_source_queue,
+                                                     args.rabbit_authorization_string,
+                                                     True,
+                                                     args.verbose)
+
+    rabbit.publish_messages(messages,
+                            args.rabbit_host_url,
+                            args.rabbit_port,
+                            args.rabbit_vhost,
+                            args.rabbit_authorization_string,
+                            args.rabbit_destination_queue,
+                            args.verbose,
+                            args.simulate)
 
 
 def queue(args):
@@ -210,6 +201,7 @@ def queue(args):
         print('-' * 80)
 
     messages = msg.get_rabbit_messages_from_file(args.message_source_file, args.verbose)
+
     rabbit.publish_messages(messages,
                             args.rabbit_host_url,
                             args.rabbit_port,
