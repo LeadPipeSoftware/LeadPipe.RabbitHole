@@ -60,4 +60,4 @@ docs/_build/
 target/
 
 # IDE
-.idea/workspace.xml
+.idea/
