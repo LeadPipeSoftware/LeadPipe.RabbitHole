@@ -1,9 +1,10 @@
 """Functions related to RabbitMQ."""
 
 from __future__ import print_function
+
 import json
+
 import os.path
-import sys
 
 
 def save_rabbit_messages_to_file(messages, save_file):
@@ -14,11 +15,14 @@ def save_rabbit_messages_to_file(messages, save_file):
     :return:
     """
 
-    print (messages)
-    # print (get_first(messages).encode('utf-8'))
-    
-    # with open(save_file, 'w') as file_to_save:
-    #    file_to_save.write(messages)
+    if messages:
+        with open(save_file, 'w') as file_to_save:
+            for message in messages:
+                print('\033[0;32;40m+ \033[0mSaving {0} messages to {1}'.format(len(messages), save_file))
+                #print(json.dumps(message, indent=4))
+                file_to_save.write(json.dumps(message, indent=2))
+    else:
+        print('\033[1;31;40m+ ERROR: \033[0mNo messages found!')
 
 
 def get_rabbit_messages_from_file(message_file_name, verbose=False):

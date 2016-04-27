@@ -1,11 +1,12 @@
 """Functions related to RabbitMQ."""
 
 from __future__ import print_function
-import json
-import requests
-import sys
-import message as msg
 
+import json
+import sys
+
+import message as msg
+import requests
 
 # Define the headers to strip out before replaying a message...
 NSERVICEBUS_RUNTIME_HEADERS = [
@@ -65,6 +66,7 @@ def get_rabbit_messages_from_queue(message_count,
                                    rabbit_vhost,
                                    message_source_queue,
                                    rabbit_authorization_string,
+                                   requeue=True,
                                    verbose=False):
     """Gets messages from a RabbitMQ queue.
 
@@ -74,14 +76,19 @@ def get_rabbit_messages_from_queue(message_count,
     :param rabbit_vhost: The RabbitMQ vhost.
     :param message_source_queue: The name of the RabbitMQ source queue.
     :param rabbit_authorization_string: The authorization string for the request header.
+    :param requeue: If True, re-queues the message after getting it from the queue.
     :param verbose: If True, prints verbose messages.
     :return: A list of the requested messages.
     """
 
-    print('\033[0;32;40m+ \033[0m Getting messages from {0}...'.format(message_source_queue))
+    print('\033[0;32;40m+ \033[0mGetting messages from {0}...'.format(message_source_queue))
 
     rabbit_url = build_rabbit_get_url(rabbit_host_url, rabbit_port, rabbit_vhost, message_source_queue)
-    rabbit_request_data = {'count': message_count, 'requeue': 'false', 'encoding': 'auto'}
+
+    if requeue:
+        rabbit_request_data = {'count': message_count, 'requeue': 'true', 'encoding': 'auto'}
+    else:
+        rabbit_request_data = {'count': message_count, 'requeue': 'false', 'encoding': 'auto'}
     rabbit_request_json = json.dumps(rabbit_request_data)
     rabbit_request_headers = {'Content-type': 'application/json', 'Authorization': rabbit_authorization_string}
 

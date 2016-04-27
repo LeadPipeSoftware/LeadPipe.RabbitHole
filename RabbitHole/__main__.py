@@ -1,11 +1,12 @@
 """RabbitHole: RabbitHole is a RabbitMQ message utility."""
 
 from __future__ import print_function
-import sys
+
 import argparse
+import sys
+
 import message as msg
 import rabbitmq as rabbit
-
 
 PROGRAM_NAME = 'RabbitHole'
 PROGRAM_VERSION = '1.0.0'
@@ -50,7 +51,7 @@ def parse_command_line_arguments():
     parser.add_argument('-s', '--rabbit_vhost', default=DEFAULT_RABBITMQ_VHOST, help='the RabbitMQ vhost name')
     parser.add_argument('-z',
                         '--rabbit_authorization_string',
-                        default=AUTHORIZATION_STRING_RABBIT,
+                        default=AUTHORIZATION_STRING_GUEST,
                         help='the authorization string for the RabbitMQ request header')
     parser.add_argument('--simulate', action='store_true')
     parser.add_argument('--verbose', action='store_true')
@@ -155,8 +156,9 @@ def snag(args):
                                                          args.rabbit_vhost,
                                                          args.message_source_queue,
                                                          args.rabbit_authorization_string,
+                                                         True,
                                                          args.verbose)
-        # save_rabbit_messages_to_file(messages, args.save_file)
+        msg.save_rabbit_messages_to_file(messages, args.save_file)
 
 
 def replay(args):
@@ -184,6 +186,7 @@ def replay(args):
                                                          args.rabbit_vhost,
                                                          args.message_source_queue,
                                                          args.rabbit_authorization_string,
+                                                         True,
                                                          args.verbose)
         rabbit.publish_messages(messages,
                                 args.rabbit_host_url,
@@ -215,20 +218,6 @@ def queue(args):
                             args.rabbit_destination_queue,
                             args.verbose,
                             args.simulate)
-
-
-def get_first(iterable, default=None):
-    """
-
-    :param iterable:
-    :param default:
-    :return:
-    """
-
-    if iterable:
-        for item in iterable:
-            return item
-    return default
 
 
 if __name__ == "__main__":

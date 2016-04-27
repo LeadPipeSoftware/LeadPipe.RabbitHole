@@ -1,7 +1,9 @@
+"""Unit tests for the get_rabbit_messages_from_file function."""
 
-import pytest
 import json
+
 import os
+import pytest
 from RabbitHole.message import get_rabbit_messages_from_file
 
 
