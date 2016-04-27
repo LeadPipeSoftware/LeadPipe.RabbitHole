@@ -5,8 +5,8 @@ from __future__ import print_function
 import argparse
 import sys
 
-import message as msg
-import rabbitmq as rabbit
+import RabbitHole.message as msg
+import RabbitHole.rabbitmq as rabbit
 
 PROGRAM_NAME = 'RabbitHole'
 PROGRAM_VERSION = '1.0.0'

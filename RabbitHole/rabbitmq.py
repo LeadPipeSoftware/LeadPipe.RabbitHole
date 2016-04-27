@@ -3,10 +3,10 @@
 from __future__ import print_function
 
 import json
+import requests
 import sys
 
-import message as msg
-import requests
+import RabbitHole.message as msg
 
 # Define the headers to strip out before replaying a message...
 NSERVICEBUS_RUNTIME_HEADERS = [
