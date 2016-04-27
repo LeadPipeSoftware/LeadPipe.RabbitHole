@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import argparse
+import os
 import sys
 
 import RabbitHole.message as msg
@@ -31,7 +32,12 @@ def main(args=None):
     elif args.command == 'replay':
         replay(args)
     elif args.command == 'queue':
-        queue(args)
+        if os.path.isfile(args.message_source_file):
+            queue(args)
+        elif os.path.isdir(args.message_source_file):
+            queue_folder(args)
+        else:
+            print('\033[1;31;40m+ ERROR: \033[0m{0} is not a file or a folder!'.format(args.message_source_file))
 
     print('\033[0;32;40m+ \033[0mDone!\033[0m\n')  # Make sure we didn't jack with the user's terminal colors
     sys.exit()
@@ -210,6 +216,33 @@ def queue(args):
                             args.rabbit_destination_queue,
                             args.verbose,
                             args.simulate)
+
+
+def queue_folder(args):
+    """Sends messages to a queue from all JSON-formatted files in a folder.
+
+        :param args: The command line arguments.
+        :return:
+        """
+
+    if args.verbose:
+        print('\033[0;36;40m    Source Folder:\033[0m \033[0;37;40m{0}\033[0m'.format(args.message_source_file))
+        print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(args.rabbit_destination_queue))
+        print('-' * 80)
+
+    for file in os.listdir(args.message_source_file):
+        full_file = os.path.join(args.message_source_file, file)
+
+        messages = msg.get_rabbit_messages_from_file(full_file, args.verbose)
+
+        rabbit.publish_messages(messages,
+                                args.rabbit_host_url,
+                                args.rabbit_port,
+                                args.rabbit_vhost,
+                                args.rabbit_authorization_string,
+                                args.rabbit_destination_queue,
+                                args.verbose,
+                                args.simulate)
 
 
 if __name__ == "__main__":
