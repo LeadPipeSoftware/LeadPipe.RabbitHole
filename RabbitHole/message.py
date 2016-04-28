@@ -55,6 +55,22 @@ def get_rabbit_messages_from_file(message_file_name, verbose=False, simulate=Fal
             return None
 
 
+def get_rabbit_message_files_in_folder(folder_name):
+    """Gets messages from a folder.
+    :param folder_name: The name of the folder to search.
+    :return: The list of files.
+    """
+
+    files = os.listdir(folder_name)
+
+    all_files = []
+
+    for file in files:
+        all_files.append(os.path.join(folder_name, file))
+
+    return all_files
+
+
 def get_source_queue(message):
     """Gets the source queue from a message.
 

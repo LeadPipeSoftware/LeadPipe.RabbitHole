@@ -137,7 +137,7 @@ def publish_messages(messages,
 
         processed_messages += 1
 
-        if destination_queue is None:
+        if not destination_queue:
             destination_queue = msg.get_source_queue(message)
 
         print('\033[0;32;40m+ \033[0m{0} of {1} - Requeueing message to {2}'.format(processed_messages,
@@ -152,6 +152,13 @@ def publish_messages(messages,
         rabbit_url = build_rabbit_publish_url(rabbit_host_url, rabbit_port, rabbit_vhost, destination_queue)
 
         json_message = json.dumps(message)
+
+        # Honestly, this really isn't necessary since invalid JSON will result in messages being empty and the function
+        # returning with a "No messages to process!" message.
+        #
+        # if not json_message and not is_json(json_message):
+        #     print('\033[1;33;40m+ WARNING: \033[0mThe message is not valid JSON. Skipping!')
+        #     continue
 
         if verbose:
             print('\033[0;32;40m+ \033[0mThe RabbitMQ URL is {0}'.format(rabbit_url))
@@ -170,3 +177,11 @@ def publish_messages(messages,
                 print('\033[0;32;40m+ \033[0m[{0}] Success!'.format(rabbit_response.status_code))
 
     return processed_messages
+
+
+def is_json(message):
+    try:
+        json_object = json.loads(message)
+    except ValueError, e:
+        return False
+    return True
