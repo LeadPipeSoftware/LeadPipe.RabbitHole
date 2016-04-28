@@ -20,6 +20,7 @@ PROGRAM_VERSION = '1.0.0'
 AUTHORIZATION_STRING_GUEST = 'Basic Z3Vlc3Q6Z3Vlc3Q='  # guest/guest
 AUTHORIZATION_STRING_RABBIT = 'Basic cmFiYml0OnJhYmJpdA=='  # rabbit/rabbit
 
+DEFAULT_MAX_THREADS = 512
 DEFAULT_RABBITMQ_HOST_URL = 'http://localhost'
 DEFAULT_RABBITMQ_PORT = 15672
 DEFAULT_RABBITMQ_VHOST = '%2F'
@@ -70,6 +71,7 @@ def parse_command_line_arguments():
                         help='the authorization string for the RabbitMQ request header')
     parser.add_argument('--simulate', action='store_true')
     parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('--max_threads', default=DEFAULT_MAX_THREADS, help='the maximum number of threads to use')
 
     subparsers = parser.add_subparsers(help='commands', dest='command')
 
@@ -107,7 +109,7 @@ def parse_command_line_arguments():
                               '--rabbit_destination_queue',
                               required=True,
                               help='The name of the RabbitMQ destination queue')
-    queue_parser.add_argument('-f', '--message_source_file', required=True, help='the message source file')
+    queue_parser.add_argument('-f', '--message_source_file', required=True, help='the message source file or folder')
 
     # Parse the arguments
     return parser.parse_args()
@@ -223,27 +225,29 @@ def queue_file():
                             PARSED_ARGS.simulate)
 
 
-def queue_files(message_source_files):
-    """Sends messages to a queue from a list of JSON-formatted files.
+def queue_file_on_thread(thread_queue):
+    """Sends messages to a queue from a JSON-formatted file.
 
     :return:
     """
 
-    # if PARSED_ARGS.verbose:
-    #     print('\033[0;36;40m      Source File:\033[0m \033[0;37;40m{0}\033[0m'.format(message_source_file))
-    #     print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_destination_queue))
-    #     print('-' * 80)
+    # Yes, we're putting ourselves in an infinite loop. This should be executed by a daemon thread which will only then
+    # exit when the main thread ends.
+    while True:
+        message_source_file = thread_queue.get()
 
-    for message_source_file in message_source_files:
         messages = msg.get_rabbit_messages_from_file(message_source_file, PARSED_ARGS.verbose)
+
         rabbit.publish_messages(messages,
                                 PARSED_ARGS.rabbit_host_url,
                                 PARSED_ARGS.rabbit_port,
                                 PARSED_ARGS.rabbit_vhost,
                                 PARSED_ARGS.rabbit_authorization_string,
                                 PARSED_ARGS.rabbit_destination_queue,
-                                PARSED_ARGS.verbose,
+                                True,
                                 PARSED_ARGS.simulate)
+
+        thread_queue.task_done()
 
 
 def queue_folder():
@@ -252,35 +256,38 @@ def queue_folder():
         :return:
         """
 
-    number_of_threads = 100
+    global THREAD_QUEUE
+
+    THREAD_QUEUE = Queue(maxsize=0)
+
+    number_of_threads = PARSED_ARGS.max_threads
 
     message_files = msg.get_rabbit_message_files_in_folder(PARSED_ARGS.message_source_file)
 
-    number_of_message_files_per_thread = len(message_files) // number_of_threads # Note floor division via // operator
-
-    chunks = get_chunks(message_files, number_of_message_files_per_thread)
+    for message_file in message_files:
+        THREAD_QUEUE.put(message_file)
 
     print('\033[0;36;40m    Source Folder:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_source_file))
     print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_destination_queue))
     print('\033[0;36;40m       File Count:\033[0m \033[0;37;40m{0}\033[0m'.format(len(message_files)))
+    print('\033[0;36;40m       Queue Size:\033[0m \033[0;37;40m{0}\033[0m'.format(THREAD_QUEUE.qsize()))
     print('\033[0;36;40m Max Thread Count:\033[0m \033[0;37;40m{0}\033[0m'.format(number_of_threads))
-    print('\033[0;36;40m Files Per Thread:\033[0m \033[0;37;40m{0}\033[0m'.format(number_of_message_files_per_thread))
     print('-' * 80)
 
     thread_list = []
 
-    # Build the threads...
-    for chunk in chunks:
-        t = threading.Thread(target=queue_files, args=(chunk,))
-        thread_list.append(t)
+    # Build the threads
+    for i in range(number_of_threads):
+        worker = threading.Thread(target=queue_file_on_thread, args=(THREAD_QUEUE,))
+        worker.setDaemon(True)
+        thread_list.append(worker)
 
-    # Start the threads...
-    for thread in thread_list:
-        thread.start()
+    # Start the threads
+    for i in thread_list:
+        i.start()
 
-    # Join the threads (block the caller until every thread is done)...
-    for thread in thread_list:
-        thread.join()
+    # Wait for the queue to be empty
+    THREAD_QUEUE.join()
 
 
 def get_chunks(list_to_chunk, items_per_chunk):

@@ -69,7 +69,7 @@ def get_rabbit_messages_from_queue(message_count,
                                    message_source_queue,
                                    rabbit_authorization_string,
                                    requeue=True,
-                                   verbose=False):
+                                   silent=False):
     """Gets messages from a RabbitMQ queue.
 
     :param message_count: The number of messages to get.
@@ -79,11 +79,12 @@ def get_rabbit_messages_from_queue(message_count,
     :param message_source_queue: The name of the RabbitMQ source queue.
     :param rabbit_authorization_string: The authorization string for the request header.
     :param requeue: If True, re-queues the message after getting it from the queue.
-    :param verbose: If True, prints verbose messages.
+    :param silent: If True, silences output.
     :return: A list of the requested messages.
     """
 
-    print('\033[0;32;40m+ \033[0mGetting messages from {0}...'.format(message_source_queue))
+    if not silent:
+        print('\033[0;32;40m+ \033[0mGetting messages from {0}...'.format(message_source_queue))
 
     rabbit_url = build_rabbit_get_url(rabbit_host_url, rabbit_port, rabbit_vhost, message_source_queue)
 
@@ -97,7 +98,8 @@ def get_rabbit_messages_from_queue(message_count,
     rabbit_response = requests.post(rabbit_url, data=rabbit_request_json, headers=rabbit_request_headers)
 
     if rabbit_response.status_code != 200:
-        print('\033[1;31;40m+ ERROR: \033[0m[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+        if not silent:
+            print('\033[1;31;40m+ ERROR: \033[0m[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
         sys.exit(1)
 
     return rabbit_response.json()
@@ -109,7 +111,7 @@ def publish_messages(messages,
                      rabbit_vhost,
                      rabbit_authorization_string,
                      destination_queue=None,
-                     verbose=False,
+                     silent=False,
                      simulate=False):
     """Publishes (or re-publishes) messages to RabbitMQ.
 
@@ -119,19 +121,17 @@ def publish_messages(messages,
     :param rabbit_vhost: The RabbitMQ vhost.
     :param rabbit_authorization_string: The authorization string for the request header.
     :param destination_queue: The queue to publish to (if None, the messages will be re-published).
-    :param verbose: If True, prints verbose messages.
+    :param silent: If True, silences output.
     :param simulate: If True, simulates the action.
     :return: The number of messages published.
     """
 
     if not messages:
-        print('\033[0;32;40m+ \033[0mNo messages to process!')
+        if not silent:
+            print('\033[0;32;40m+ \033[0mNo messages to process!')
         return
 
     rabbit_request_headers = {'Content-type': 'application/json', 'Authorization': rabbit_authorization_string}
-
-    if verbose:
-        print('\033[0;32;40m+ \033[0mThe headers are {0}'.format(rabbit_request_headers))
 
     processed_messages = 0
 
@@ -142,9 +142,10 @@ def publish_messages(messages,
         if not destination_queue:
             destination_queue = msg.get_source_queue(message)
 
-        print('\033[0;32;40m+ \033[0m{0} of {1} - Requeueing message to {2}'.format(processed_messages,
-                                                                                    len(messages),
-                                                                                    destination_queue))
+        if not silent:
+            print('\033[0;32;40m+ \033[0m{0} of {1} - Requeueing message to {2}'.format(processed_messages,
+                                                                                        len(messages),
+                                                                                        destination_queue))
 
         message = msg.scrub_message(message, NSERVICEBUS_RUNTIME_HEADERS)
         message = msg.scrub_message(message, NSERVICEBUS_DIAGNOSTIC_HEADERS)
@@ -162,21 +163,24 @@ def publish_messages(messages,
         #     print('\033[1;33;40m+ WARNING: \033[0mThe message is not valid JSON. Skipping!')
         #     continue
 
-        if verbose:
+        if not silent:
             print('\033[0;32;40m+ \033[0mThe RabbitMQ URL is {0}'.format(rabbit_url))
 
         if simulate:
-            print('\033[0;32;40m+ \033[0;35;40m[200] Success!\033[0m')
+            if not silent:
+                print('\033[0;32;40m+ \033[0;35;40m[200] Success!\033[0m')
         else:
             rabbit_response = requests.post(rabbit_url, data=json_message, headers=rabbit_request_headers)
 
             if rabbit_response.status_code != 200:
-                print('\033[0;32;40m+ \033[0mThe RabbitMQ response was {0}'.format(rabbit_response.status_code))
-                print(
-                '\033[1;31;40m+ ERROR: \033[0m[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+                if not silent:
+                    print('\033[0;32;40m+ \033[0mThe RabbitMQ response was {0}'.format(rabbit_response.status_code))
+                    print(
+                    '\033[1;31;40m+ ERROR: \033[0m[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
                 sys.exit(1)
             else:
-                print('\033[0;32;40m+ \033[0m[{0}] Success!'.format(rabbit_response.status_code))
+                if not silent:
+                    print('\033[0;32;40m+ \033[0m[{0}] Success!'.format(rabbit_response.status_code))
 
     return processed_messages
 
