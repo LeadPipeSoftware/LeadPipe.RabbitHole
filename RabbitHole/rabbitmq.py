@@ -8,6 +8,8 @@ import sys
 
 import RabbitHole.message as msg
 
+print = lambda x: sys.stdout.write("%s\n" % x)
+
 # Define the headers to strip out before replaying a message...
 NSERVICEBUS_RUNTIME_HEADERS = [
     'NServiceBus.FLRetries',

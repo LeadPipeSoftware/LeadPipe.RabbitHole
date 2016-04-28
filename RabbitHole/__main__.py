@@ -4,11 +4,15 @@ from __future__ import print_function
 
 import argparse
 import os
+from Queue import Queue
 import sys
 import threading
+from timeit import default_timer as timer
 
 import RabbitHole.message as msg
 import RabbitHole.rabbitmq as rabbit
+
+print = lambda x: sys.stdout.write("%s\n" % x)
 
 PROGRAM_NAME = 'RabbitHole'
 PROGRAM_VERSION = '1.0.0'
@@ -29,6 +33,8 @@ def main(args=None):
 
     display_welcome()
 
+    start = timer()
+
     if PARSED_ARGS.command == 'snag':
         snag()
     elif PARSED_ARGS.command == 'replay':
@@ -41,7 +47,8 @@ def main(args=None):
         else:
             print('\033[1;31;40m+ ERROR: \033[0m{0} is not a file or a folder!'.format(PARSED_ARGS.message_source_file))
 
-    print('\033[0;32;40m+ \033[0mDone!\033[0m\n')  # Make sure we didn't jack with the user's terminal colors
+    end = timer()
+    print('\033[0;32;40m+ \033[0mDone in {0}!\033[0m\n'.format(end - start))  # Make sure we didn't jack with the user's terminal colors
     sys.exit()
 
 
@@ -245,7 +252,7 @@ def queue_folder():
         :return:
         """
 
-    number_of_threads = 10
+    number_of_threads = 100
 
     message_files = msg.get_rabbit_message_files_in_folder(PARSED_ARGS.message_source_file)
 
@@ -284,18 +291,12 @@ def get_chunks(list_to_chunk, items_per_chunk):
     :return:
     """
 
-    # Declare some empty lists
-    chunk = []
     chunks = []
 
-    # Step through the data n elements at a time
     for x in range(0, len(list_to_chunk), items_per_chunk):
-        # Extract n elements
         chunk = list_to_chunk[x:x + items_per_chunk]
-        # Add them to list
         chunks.append(chunk)
 
-    # Return the new list
     return chunks
 
 

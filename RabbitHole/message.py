@@ -3,9 +3,11 @@
 from __future__ import print_function
 
 import json
+import sys
 
 import os.path
 
+print = lambda x: sys.stdout.write("%s\n" % x)
 
 def save_rabbit_messages_to_file(messages, save_file, simulate=False):
     """Saves RabbitMQ messages to a file in JSON format.
