@@ -20,7 +20,7 @@ PROGRAM_VERSION = '1.0.0'
 AUTHORIZATION_STRING_GUEST = 'Basic Z3Vlc3Q6Z3Vlc3Q='  # guest/guest
 AUTHORIZATION_STRING_RABBIT = 'Basic cmFiYml0OnJhYmJpdA=='  # rabbit/rabbit
 
-DEFAULT_MAX_THREADS = 512
+DEFAULT_MAX_THREADS = 128
 DEFAULT_RABBITMQ_HOST_URL = 'http://localhost'
 DEFAULT_RABBITMQ_PORT = 15672
 DEFAULT_RABBITMQ_VHOST = '%2F'
@@ -71,7 +71,7 @@ def parse_command_line_arguments():
                         help='the authorization string for the RabbitMQ request header')
     parser.add_argument('--simulate', action='store_true')
     parser.add_argument('--verbose', action='store_true')
-    parser.add_argument('--max_threads', default=DEFAULT_MAX_THREADS, help='the maximum number of threads to use')
+    parser.add_argument('--max_threads', default=DEFAULT_MAX_THREADS, type=int, help='the maximum number of threads to use')
 
     subparsers = parser.add_subparsers(help='commands', dest='command')
 
