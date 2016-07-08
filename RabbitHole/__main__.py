@@ -9,6 +9,7 @@ import sys
 import threading
 from timeit import default_timer as timer
 
+import RabbitHole.console as con
 import RabbitHole.message as msg
 import RabbitHole.rabbitmq as rabbit
 
@@ -20,7 +21,7 @@ PROGRAM_VERSION = '1.0.0'
 AUTHORIZATION_STRING_GUEST = 'Basic Z3Vlc3Q6Z3Vlc3Q='  # guest/guest
 AUTHORIZATION_STRING_RABBIT = 'Basic cmFiYml0OnJhYmJpdA=='  # rabbit/rabbit
 
-DEFAULT_MAX_THREADS = 128
+DEFAULT_MAX_THREADS = 1
 DEFAULT_RABBITMQ_HOST_URL = 'http://localhost'
 DEFAULT_RABBITMQ_PORT = 15672
 DEFAULT_RABBITMQ_VHOST = '%2F'
@@ -65,10 +66,7 @@ def parse_command_line_arguments():
     parser.add_argument('-r', '--rabbit_host_url', default=DEFAULT_RABBITMQ_HOST_URL, help='the RabbitMQ host URL')
     parser.add_argument('-p', '--rabbit_port', type=int, default=DEFAULT_RABBITMQ_PORT, help='the RabbitMQ port')
     parser.add_argument('-s', '--rabbit_vhost', default=DEFAULT_RABBITMQ_VHOST, help='the RabbitMQ vhost name')
-    parser.add_argument('-z',
-                        '--rabbit_authorization_string',
-                        default=AUTHORIZATION_STRING_GUEST,
-                        help='the authorization string for the RabbitMQ request header')
+    parser.add_argument('-z', '--rabbit_authorization_string', default=AUTHORIZATION_STRING_GUEST, help='the authorization string for the RabbitMQ request header')
     parser.add_argument('--simulate', action='store_true')
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--max_threads', default=DEFAULT_MAX_THREADS, type=int, help='the maximum number of threads to use')
@@ -76,39 +74,23 @@ def parse_command_line_arguments():
     subparsers = parser.add_subparsers(help='commands', dest='command')
 
     # Snag command
-    snag_parser = subparsers.add_parser('snag',
-                                        help='Snags messages from a queue and saves them to a JSON-formatted file')
+    snag_parser = subparsers.add_parser('snag', help='Snags messages from a queue and saves them to a JSON-formatted file')
 
-    snag_parser.add_argument('-q',
-                             '--message_source_queue',
-                             required=True,
-                             help='The name of the RabbitMQ source queue to get the messages from')
+    snag_parser.add_argument('-q', '--message_source_queue', required=True, help='The name of the RabbitMQ source queue to get the messages from')
     snag_parser.add_argument('-m', '--message_count', required=True, help='The number of messages to requeue')
-    snag_parser.add_argument('-a',
-                             '--save_file',
-                             required=True,
-                             help='the file to save the JSON message to - PREVENTS RE-QUEUEING')
+    snag_parser.add_argument('-a', '--save_file', required=True, help='the file to save the JSON message to - PREVENTS RE-QUEUEING')
 
     # Replay command
     replay_parser = subparsers.add_parser('replay', help='Replays messages in a queue')
 
-    replay_parser.add_argument('-q',
-                               '--message_source_queue',
-                               required=True,
-                               help='The name of the RabbitMQ source queue to get the messages from')
+    replay_parser.add_argument('-q', '--message_source_queue', required=True, help='The name of the RabbitMQ source queue to get the messages from')
     replay_parser.add_argument('-m', '--message_count', required=True, help='The number of messages to requeue')
-    replay_parser.add_argument('-d',
-                               '--rabbit_destination_queue',
-                               required=True,
-                               help='The name of the RabbitMQ destination queue')
+    replay_parser.add_argument('-d', '--rabbit_destination_queue', required=True, help='The name of the RabbitMQ destination queue')
 
     # Queue command
     queue_parser = subparsers.add_parser('queue', help='Sends messages to a queue from a JSON-formatted file')
 
-    queue_parser.add_argument('-d',
-                              '--rabbit_destination_queue',
-                              required=True,
-                              help='The name of the RabbitMQ destination queue')
+    queue_parser.add_argument('-d', '--rabbit_destination_queue', required=True, help='The name of the RabbitMQ destination queue')
     queue_parser.add_argument('-f', '--message_source_file', required=True, help='the message source file or folder')
 
     # Parse the arguments
@@ -121,30 +103,19 @@ def display_welcome():
     :return:
     """
 
-    # Foreground    Code    Style       Code    Background  Code
-    # ----------------------------------------------------------
-    # Black         30      No effect   0       Black       40
-    # Red       	31      Bold        1       Red         41
-    # Green         32      Underline   4   	Green   	42
-    # Yellow	    33	    Blink	    5	    Yellow	    43
-    # Blue	        34	    Inverse	    7	    Blue	    44
-    # Purple	    35	    Hidden	    8	    Purple	    45
-    # Cyan	        36		                    Cyan	    46
-    # White	        37                 			White	    47
-
-    print('\033[0;33;40m{0} v{1}\033[0m'.format(PROGRAM_NAME, PROGRAM_VERSION))
-    print('-' * 80)
+    con.write_title(PROGRAM_NAME, PROGRAM_VERSION)
+    con.write_divider()
 
     if PARSED_ARGS.verbose:
-        print('\033[0;36;40m   Host URL:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_host_url))
-        print('\033[0;36;40m       Port:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_port))
-        print('\033[0;36;40m      VHost:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_vhost))
-        print('\033[0;36;40mAuth String:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_authorization_string))
-        print('-' * 80)
+        con.write_keyvaluepair('         Host URL', PARSED_ARGS.rabbit_host_url)
+        con.write_keyvaluepair('             Port', PARSED_ARGS.rabbit_port)
+        con.write_keyvaluepair('            VHost', PARSED_ARGS.rabbit_vhost)
+        con.write_keyvaluepair('      Auth String', PARSED_ARGS.rabbit_authorization_string)
+        con.write_divider()
 
     if PARSED_ARGS.simulate:
         print('Output in \033[0;35;40mthis color\033[0m indicates a simulated step!')
-        print('-' * 80)
+        con.write_divider()
 
 
 def snag():
@@ -154,10 +125,10 @@ def snag():
     """
 
     if PARSED_ARGS.verbose:
-        print('\033[0;36;40mMessage Count:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_count))
-        print('\033[0;36;40m Source Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_source_queue))
-        print('\033[0;36;40m    Save File:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.save_file))
-        print('-' * 80)
+        con.write_keyvaluepair('Message Count', PARSED_ARGS.message_count)
+        con.write_keyvaluepair(' Source Queue', PARSED_ARGS.message_source_queue)
+        con.write_keyvaluepair('    Save File', PARSED_ARGS.save_file)
+        con.write_divider()
 
     messages = rabbit.get_rabbit_messages_from_queue(PARSED_ARGS.message_count,
                                                      PARSED_ARGS.rabbit_host_url,
@@ -178,10 +149,10 @@ def replay():
     """
 
     if PARSED_ARGS.verbose:
-        print('\033[0;36;40m    Message Count:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_count))
-        print('\033[0;36;40m     Source Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_source_queue))
-        print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_destination_queue))
-        print('-' * 80)
+        con.write_keyvaluepair('    Message Count', PARSED_ARGS.message_count)
+        con.write_keyvaluepair('     Source Queue', PARSED_ARGS.message_source_queue)
+        con.write_keyvaluepair('Destination Queue', PARSED_ARGS.rabbit_destination_queue)
+        con.write_divider()
 
     messages = rabbit.get_rabbit_messages_from_queue(PARSED_ARGS.message_count,
                                                      PARSED_ARGS.rabbit_host_url,
@@ -197,9 +168,9 @@ def replay():
                             PARSED_ARGS.rabbit_port,
                             PARSED_ARGS.rabbit_vhost,
                             PARSED_ARGS.rabbit_authorization_string,
-                            PARSED_ARGS.rabbit_destination_queue,
-                            PARSED_ARGS.verbose,
-                            PARSED_ARGS.simulate)
+                            PARSED_ARGS.rabbit_destination_queue,                            
+                            PARSED_ARGS.simulate,
+                            PARSED_ARGS.verbose)
 
 
 def queue_file():
@@ -209,20 +180,20 @@ def queue_file():
     """
 
     if PARSED_ARGS.verbose:
-        print('\033[0;36;40m      Source File:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_source_file))
-        print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_destination_queue))
-        print('-' * 80)
+        con.write_keyvaluepair('      Source File', PARSED_ARGS.message_source_file)
+        con.write_keyvaluepair('Destination Queue', PARSED_ARGS.rabbit_destination_queue)
+        con.write_divider()
 
-    messages = msg.get_rabbit_messages_from_file(PARSED_ARGS.message_source_file, PARSED_ARGS.verbose)
+    messages = msg.get_rabbit_messages_from_file(PARSED_ARGS.message_source_file, PARSED_ARGS.simulate, PARSED_ARGS.verbose)
 
     rabbit.publish_messages(messages,
                             PARSED_ARGS.rabbit_host_url,
                             PARSED_ARGS.rabbit_port,
                             PARSED_ARGS.rabbit_vhost,
                             PARSED_ARGS.rabbit_authorization_string,
-                            PARSED_ARGS.rabbit_destination_queue,
-                            PARSED_ARGS.verbose,
-                            PARSED_ARGS.simulate)
+                            PARSED_ARGS.rabbit_destination_queue,                            
+                            PARSED_ARGS.simulate,
+                            PARSED_ARGS.verbose)
 
 
 def queue_file_on_thread(thread_queue):
@@ -236,7 +207,7 @@ def queue_file_on_thread(thread_queue):
     while True:
         message_source_file = thread_queue.get()
 
-        messages = msg.get_rabbit_messages_from_file(message_source_file, PARSED_ARGS.verbose)
+        messages = msg.get_rabbit_messages_from_file(message_source_file, PARSED_ARGS.simulate, PARSED_ARGS.verbose)
 
         rabbit.publish_messages(messages,
                                 PARSED_ARGS.rabbit_host_url,
@@ -267,12 +238,12 @@ def queue_folder():
     for message_file in message_files:
         THREAD_QUEUE.put(message_file)
 
-    print('\033[0;36;40m    Source Folder:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.message_source_file))
-    print('\033[0;36;40mDestination Queue:\033[0m \033[0;37;40m{0}\033[0m'.format(PARSED_ARGS.rabbit_destination_queue))
-    print('\033[0;36;40m       File Count:\033[0m \033[0;37;40m{0}\033[0m'.format(len(message_files)))
-    print('\033[0;36;40m       Queue Size:\033[0m \033[0;37;40m{0}\033[0m'.format(THREAD_QUEUE.qsize()))
-    print('\033[0;36;40m Max Thread Count:\033[0m \033[0;37;40m{0}\033[0m'.format(number_of_threads))
-    print('-' * 80)
+    con.write_keyvaluepair('    Source Folder', PARSED_ARGS.message_source_file)
+    con.write_keyvaluepair('Destination Queue', PARSED_ARGS.rabbit_destination_queue)
+    con.write_keyvaluepair('       File Count', len(message_files))
+    con.write_keyvaluepair('       Queue Size', THREAD_QUEUE.qsize())
+    con.write_keyvaluepair(' Max Thread Count', number_of_threads)
+    con.write_divider()
 
     thread_list = []
 

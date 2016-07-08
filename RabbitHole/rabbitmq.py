@@ -6,6 +6,7 @@ import json
 import requests
 import sys
 
+import RabbitHole.console as con
 import RabbitHole.message as msg
 
 print = lambda x: sys.stdout.write("%s\n" % x)
@@ -69,7 +70,7 @@ def get_rabbit_messages_from_queue(message_count,
                                    message_source_queue,
                                    rabbit_authorization_string,
                                    requeue=True,
-                                   silent=False):
+                                   verbose=False):
     """Gets messages from a RabbitMQ queue.
 
     :param message_count: The number of messages to get.
@@ -79,12 +80,11 @@ def get_rabbit_messages_from_queue(message_count,
     :param message_source_queue: The name of the RabbitMQ source queue.
     :param rabbit_authorization_string: The authorization string for the request header.
     :param requeue: If True, re-queues the message after getting it from the queue.
-    :param silent: If True, silences output.
+    :param verbose: If True, enable verbose output.
     :return: A list of the requested messages.
     """
 
-    if not silent:
-        print('\033[0;32;40m+ \033[0mGetting messages from {0}...'.format(message_source_queue))
+    con.write_update('Getting messages from {0}...'.format(message_source_queue))
 
     rabbit_url = build_rabbit_get_url(rabbit_host_url, rabbit_port, rabbit_vhost, message_source_queue)
 
@@ -98,8 +98,7 @@ def get_rabbit_messages_from_queue(message_count,
     rabbit_response = requests.post(rabbit_url, data=rabbit_request_json, headers=rabbit_request_headers)
 
     if rabbit_response.status_code != 200:
-        if not silent:
-            print('\033[1;31;40m+ ERROR: \033[0m[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+        con.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
         sys.exit(1)
 
     return rabbit_response.json()
@@ -111,8 +110,8 @@ def publish_messages(messages,
                      rabbit_vhost,
                      rabbit_authorization_string,
                      destination_queue=None,
-                     silent=False,
-                     simulate=False):
+                     simulate=False,
+                     verbose=False):
     """Publishes (or re-publishes) messages to RabbitMQ.
 
     :param messages: A list of the messages to publish.
@@ -121,14 +120,13 @@ def publish_messages(messages,
     :param rabbit_vhost: The RabbitMQ vhost.
     :param rabbit_authorization_string: The authorization string for the request header.
     :param destination_queue: The queue to publish to (if None, the messages will be re-published).
-    :param silent: If True, silences output.
     :param simulate: If True, simulates the action.
+    :param verbose: If True, enable verbose output.
     :return: The number of messages published.
     """
 
     if not messages:
-        if not silent:
-            print('\033[0;32;40m+ \033[0mNo messages to process!')
+        con.write_update('No messages to process!')
         return
 
     rabbit_request_headers = {'Content-type': 'application/json', 'Authorization': rabbit_authorization_string}
@@ -142,10 +140,7 @@ def publish_messages(messages,
         if not destination_queue:
             destination_queue = msg.get_source_queue(message)
 
-        if not silent:
-            print('\033[0;32;40m+ \033[0m{0} of {1} - Requeueing message to {2}'.format(processed_messages,
-                                                                                        len(messages),
-                                                                                        destination_queue))
+        con.write_update('{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
 
         message = msg.scrub_message(message, NSERVICEBUS_RUNTIME_HEADERS)
         message = msg.scrub_message(message, NSERVICEBUS_DIAGNOSTIC_HEADERS)
@@ -156,31 +151,19 @@ def publish_messages(messages,
 
         json_message = json.dumps(message)
 
-        # Honestly, this really isn't necessary since invalid JSON will result in messages being empty and the function
-        # returning with a "No messages to process!" message.
-        #
-        # if not json_message and not is_json(json_message):
-        #     print('\033[1;33;40m+ WARNING: \033[0mThe message is not valid JSON. Skipping!')
-        #     continue
-
-        if not silent:
-            print('\033[0;32;40m+ \033[0mThe RabbitMQ URL is {0}'.format(rabbit_url))
+        con.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
 
         if simulate:
-            if not silent:
-                print('\033[0;32;40m+ \033[0;35;40m[200] Success!\033[0m')
+            con.write_simulated_update('[200] Success!')
         else:
             rabbit_response = requests.post(rabbit_url, data=json_message, headers=rabbit_request_headers)
 
             if rabbit_response.status_code != 200:
-                if not silent:
-                    print('\033[0;32;40m+ \033[0mThe RabbitMQ response was {0}'.format(rabbit_response.status_code))
-                    print(
-                    '\033[1;31;40m+ ERROR: \033[0m[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+                con.write_update('The RabbitMQ response was {0}'.format(rabbit_response.status_code))
+                con.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
                 sys.exit(1)
             else:
-                if not silent:
-                    print('\033[0;32;40m+ \033[0m[{0}] Success!'.format(rabbit_response.status_code))
+                con.write_update('[{0}] Success!'.format(rabbit_response.status_code))
 
     return processed_messages
 
