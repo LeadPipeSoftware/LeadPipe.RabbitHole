@@ -1,5 +1,7 @@
 """Functions related to console output."""
 
+from __future__ import print_function
+
     # Foreground    Code    Style       Code    Background  Code
     # ----------------------------------------------------------
     # Black         30      No effect   0       Black       40
