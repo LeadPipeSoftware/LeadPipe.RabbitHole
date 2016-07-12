@@ -39,5 +39,5 @@ class SnagCommand(object):
             self._configuration.verbose)
 
         self._rabbitmq_message_helper.save_rabbit_messages_to_file(messages,
-                                                                   self._configuration.save_file,
+                                                                   self._configuration.command_line_arguments.save_file,
                                                                    self._configuration.command_line_arguments.simulate)
