@@ -15,26 +15,6 @@ class RabbitMQ(object):
         self._logger = logger
         self._rabbitmq_message_helper = RabbitMQMessageHelper(configuration, console, logger)
 
-    # Define the headers to strip out before replaying a message...
-    NSERVICEBUS_RUNTIME_HEADERS = [
-        'NServiceBus.FLRetries',
-        'NServiceBus.Retries']
-    NSERVICEBUS_DIAGNOSTIC_HEADERS = [
-        '$.diagnostics.originating.hostid',
-        '$.diagnostics.hostdisplayname',
-        '$.diagnostics.hostid',
-        '$.diagnostics.license.expired']
-    NSERVICEBUS_AUDIT_HEADERS = [
-        'NServiceBus.Version',
-        'NServiceBus.TimeSent',
-        'NServiceBus.EnclosedMessageTypes',
-        'NServiceBus.ProcessingStarted',
-        'NServiceBus.ProcessingEnded',
-        'NServiceBus.OriginatingAddress',
-        'NServiceBus.ProcessingEndpoint',
-        'NServiceBus.ProcessingMachine']
-    NSERVICEBUS_ERROR_HEADERS = ['NServiceBus.FailedQ']
-
     def build_rabbit_get_url(self, rabbit_host_url, rabbit_host_port, rabbit_vhost, message_source_queue):
         """Builds the RabbitMQ GET URL.
 
@@ -141,15 +121,13 @@ class RabbitMQ(object):
             processed_messages += 1
 
             if not destination_queue:
-                destination_queue = msg.get_source_queue(message)
+                destination_queue = self._rabbitmq_message_helper.get_source_queue(message)
 
             self._console.write_update(
                 '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
 
-            message = self._rabbitmq_message_helper.scrub_message(message, self.NSERVICEBUS_RUNTIME_HEADERS)
-            message = self._rabbitmq_message_helper.scrub_message(message, self.NSERVICEBUS_DIAGNOSTIC_HEADERS)
-            message = self._rabbitmq_message_helper.scrub_message(message, self.NSERVICEBUS_AUDIT_HEADERS)
-            message = self._rabbitmq_message_helper.scrub_message(message, self.NSERVICEBUS_ERROR_HEADERS)
+            self._logger.debug('Scrubbing {0} from message'.format(self._configuration.message_headers_to_remove))
+            message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.message_headers_to_remove)
 
             rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost, destination_queue)
 

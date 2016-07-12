@@ -91,9 +91,10 @@ class RabbitMQMessageHelper(object):
         source_queue = None
 
         try:
-            source_queue = message['properties']['headers']['NServiceBus.FailedQ']
+            source_queue_header_key = self._configuration.source_queue_header_key
+            source_queue = message['properties']['headers'][source_queue_header_key]
         except KeyError:
-            raise ValueError('The source queue could not be determined!')
+            raise ValueError('The source queue could not be determined using key {0}!'.format(source_queue_header_key))
 
         return source_queue.split('@', 1)[0]
 

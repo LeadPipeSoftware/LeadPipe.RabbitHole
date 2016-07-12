@@ -2,7 +2,7 @@ from RabbitHole.rabbitmq import RabbitMQ
 
 
 class ReplayCommand(object):
-    """Replays messages in a queue.
+    """Returns messages to their source queue.
     """
 
     def __init__(self, configuration, console, logger):
@@ -22,8 +22,6 @@ class ReplayCommand(object):
                                              self._configuration.command_line_arguments.message_count)
             self._console.write_keyvaluepair('     Source Queue',
                                              self._configuration.command_line_arguments.message_source_queue)
-            self._console.write_keyvaluepair('Destination Queue',
-                                             self._configuration.command_line_arguments.rabbit_destination_queue)
             self._console.write_divider()
 
         messages = self._rabbitmq.get_rabbit_messages_from_queue(
@@ -41,6 +39,6 @@ class ReplayCommand(object):
                                         self._configuration.rabbit_host_port,
                                         self._configuration.rabbit_vhost,
                                         self._configuration.rabbit_authorization_string,
-                                        self._configuration.command_line_arguments.rabbit_destination_queue,
+                                        None, # Luuuuke... use the source queue
                                         self._configuration.simulate,
                                         self._configuration.verbose)

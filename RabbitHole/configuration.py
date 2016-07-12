@@ -17,6 +17,8 @@ class Configuration(object):
         self._rabbit_username = None
         self._rabbit_password = None
         self._rabbit_vhost = None
+        self._source_queue_header_key = None
+        self._message_headers_to_remove = None
         self._simulate = None
         self._verbose = None
         self._max_threads = None
@@ -111,7 +113,6 @@ class Configuration(object):
 
             config_file_value = None
             if self._ignore_config_file is False:
-                self._logger.info('Config file is being used.')
                 if self._config_file.has_option('RabbitMQ', 'Username'):
                     config_file_value = self._config_file.get('RabbitMQ', 'Username')
 
@@ -154,7 +155,6 @@ class Configuration(object):
 
     @property
     def rabbit_authorization_string(self):
-        self._logger.info('User: {0}, Pass: {1}'.format(self.rabbit_username, self.rabbit_password))
         encoded_value = base64.encodestring('%s:%s' % (self.rabbit_username, self.rabbit_password)).replace('\n', '')
         return 'Basic {0}'.format(encoded_value)
 
@@ -180,6 +180,72 @@ class Configuration(object):
     @rabbit_vhost.setter
     def rabbit_vhost(self, value):
         self._rabbit_vhost = value
+
+    @property
+    def source_queue_header_key(self):
+        if self._source_queue_header_key is None:
+
+            config_file_value = None
+            if self._ignore_config_file is False:
+                if self._config_file.has_option('Messages', 'SourceQueueHeaderKey'):
+                    config_file_value = self._config_file.get('Messages', 'SourceQueueHeaderKey')
+
+            if hasattr(self.command_line_arguments,
+                       'source_queue_header_key') and self.command_line_arguments.source_queue_header_key is not None:
+                self.source_queue_header_key = self.command_line_arguments.source_queue_header_key
+            elif config_file_value is not None:
+                self.source_queue_header_key = config_file_value
+            else:
+                self.source_queue_header_key = 'NServiceBus.FailedQ'
+
+        return self._source_queue_header_key
+
+    @source_queue_header_key.setter
+    def source_queue_header_key(self, value):
+        self._source_queue_header_key = value
+
+    @property
+    def message_headers_to_remove(self):
+        if self._message_headers_to_remove is None:
+
+            # Define the headers to strip out before replaying a message...
+            nservicebus_runtime_headers = [
+                'NServiceBus.FLRetries',
+                'NServiceBus.Retries']
+            nservicebus_diagnostic_headers = [
+                '$.diagnostics.originating.hostid',
+                '$.diagnostics.hostdisplayname',
+                '$.diagnostics.hostid',
+                '$.diagnostics.license.expired']
+            nservicebus_audit_headers = [
+                'NServiceBus.Version',
+                'NServiceBus.TimeSent',
+                'NServiceBus.EnclosedMessageTypes',
+                'NServiceBus.ProcessingStarted',
+                'NServiceBus.ProcessingEnded',
+                'NServiceBus.OriginatingAddress',
+                'NServiceBus.ProcessingEndpoint',
+                'NServiceBus.ProcessingMachine']
+            nservicebus_error_headers = ['NServiceBus.FailedQ']
+
+            config_file_value = None
+            if self._ignore_config_file is False:
+                if self._config_file.has_option('Messages', 'MessageHeadersToRemove'):
+                    config_file_value = self._config_file.get('Messages', 'MessageHeadersToRemove')
+
+            if hasattr(self.command_line_arguments,
+                       'message_headers_to_remove') and self.command_line_arguments.message_headers_to_remove is not None:
+                self.message_headers_to_remove = self.command_line_arguments.message_headers_to_remove
+            elif config_file_value is not None:
+                self.message_headers_to_remove = config_file_value.split(',')  # Careful!
+            else:
+                self.message_headers_to_remove = nservicebus_runtime_headers + nservicebus_diagnostic_headers + nservicebus_audit_headers + nservicebus_error_headers
+
+        return self._message_headers_to_remove
+
+    @message_headers_to_remove.setter
+    def message_headers_to_remove(self, value):
+        self._message_headers_to_remove = value
 
     @property
     def simulate(self):

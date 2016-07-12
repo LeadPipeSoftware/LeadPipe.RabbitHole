@@ -27,7 +27,10 @@ def main(args=None):
     parsed_arguments = command_line_arguments.parsed_arguments
 
     LOG_FORMAT = '%(levelname) -10s %(asctime)s %(name) -30s %(funcName) -35s %(lineno) -5d: %(message)s'
-    logging.basicConfig(filename='RabbitHole.log', filemode='w', level=logging.INFO, format=LOG_FORMAT)
+    if parsed_arguments.debug:
+        logging.basicConfig(filename='RabbitHole.log', filemode='w', level=logging.DEBUG, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(filename='RabbitHole.log', filemode='w', level=logging.INFO, format=LOG_FORMAT)
     logger = logging.getLogger(__name__)
 
     logger.info('{0} {1}'.format(PROGRAM_NAME, PROGRAM_VERSION))

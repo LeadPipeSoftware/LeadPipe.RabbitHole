@@ -7,7 +7,7 @@ from RabbitHole.rabbitmq import RabbitMQ
 
 
 class QueueCommand(object):
-    """Saves messages from a queue to a JSON-formatted file.
+    """Sends messages to a queue from a JSON file.
     """
 
     def __init__(self, configuration, console, logger):
