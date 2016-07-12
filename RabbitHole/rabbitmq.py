@@ -116,6 +116,11 @@ class RabbitMQ(object):
 
         processed_messages = 0
 
+        rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost, destination_queue)
+
+        if verbose:
+            self._console.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
+
         for message in messages:
 
             processed_messages += 1
@@ -123,17 +128,17 @@ class RabbitMQ(object):
             if not destination_queue:
                 destination_queue = self._rabbitmq_message_helper.get_source_queue(message)
 
-            self._console.write_update(
-                '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
+            if len(messages) > 1:
+                self._console.write_update(
+                    '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
+            else:
+                self._console.write_update(
+                    'Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
 
             self._logger.debug('Scrubbing {0} from message'.format(self._configuration.message_headers_to_remove))
             message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.message_headers_to_remove)
 
-            rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost, destination_queue)
-
             json_message = json.dumps(message)
-
-            self._console.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
 
             if simulate:
                 self._console.write_simulated_update('[200] Success!')
