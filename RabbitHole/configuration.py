@@ -21,6 +21,7 @@ class Configuration(object):
         self._message_headers_to_remove = None
         self._simulate = None
         self._verbose = None
+        self._silent = None
         self._max_threads = None
 
         self._config_file = None
@@ -290,6 +291,28 @@ class Configuration(object):
     @verbose.setter
     def verbose(self, value):
         self._verbose = value
+
+    @property
+    def silent(self):
+        if self._silent is None:
+
+            config_file_value = None
+            if self._ignore_config_file is False:
+                if self._config_file.has_option('General', 'Silent'):
+                    config_file_value = self._config_file.getboolean('General', 'Silent')
+
+            if hasattr(self.command_line_arguments, 'silent') and self.command_line_arguments.silent is not None:
+                self.silent = self.command_line_arguments.silent
+            elif config_file_value is not None:
+                self.silent = config_file_value
+            else:
+                self.silent = False
+
+        return self._silent
+
+    @silent.setter
+    def silent(self, value):
+        self._silent = value
 
     @property
     def max_threads(self):

@@ -60,8 +60,9 @@ def main(args=None):
                 config.command_line_arguments.message_source_file))
 
     end = timer()
-    print('\033[0;32;40m+ \033[0mDone in {0}!\033[0m\n'.format(
-        end - start))  # Make sure we didn't jack with the user's terminal colors
+    if not config.silent:
+        # Make sure we didn't jack with the user's terminal colors
+        print('\033[0;32;40m+ \033[0mDone in {0}!\033[0m\n'.format(end - start))
     # sys.exit()
 
 

@@ -38,6 +38,8 @@ class CommandLineArguments(object):
                             action='store_true')
         parser.add_argument('--verbose',
                             action='store_true')
+        parser.add_argument('--silent',
+                            action='store_true')
         parser.add_argument('--max_threads',
                             type=int,
                             help='the maximum number of threads to use')
