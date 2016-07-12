@@ -4,7 +4,7 @@ import json
 
 import os
 import pytest
-from RabbitHole.message import get_rabbit_messages_from_file
+from RabbitHole.rabbitmq_message_helper import get_rabbit_messages_from_file
 
 
 def test_throw_exception_given_file_not_found():

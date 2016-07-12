@@ -23,10 +23,8 @@ def main(args=None):
     """The program entry point."""
 
     LOG_FORMAT = '%(levelname) -10s %(asctime)s %(name) -30s %(funcName) -35s %(lineno) -5d: %(message)s'
-    logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    logging.basicConfig(filename='RabbitHole.log', filemode='w', level=logging.INFO, format=LOG_FORMAT)
     logger = logging.getLogger(__name__)
-    log_file_handler = logging.FileHandler('RabbitHole.log', mode='w')  # Setting the mode to write clears each use
-    logger.addHandler(log_file_handler)
 
     logger.info('{0} {1}'.format(PROGRAM_NAME, PROGRAM_VERSION))
 
@@ -61,13 +59,14 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Cancelled by user')
-        sys.exit(0)
-    except AttributeError:
-        sys.exit(0)
-    except:
-        print("Unexpected error: {0}".format(sys.exc_info()[0]))
-        sys.exit(1)
+    main()
+    # try:
+    #     main()
+    # except KeyboardInterrupt:
+    #     print('Cancelled by user')
+    #     sys.exit(0)
+    # except AttributeError:
+    #     sys.exit(0)
+    # except:
+    #     print("Unexpected error: {0}".format(sys.exc_info()[0]))
+    #     sys.exit(1)

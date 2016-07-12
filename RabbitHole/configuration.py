@@ -1,7 +1,6 @@
 import argparse
 import base64
 import ConfigParser
-import logging
 
 import sys
 
@@ -24,14 +23,18 @@ class Configuration(object):
         self._verbose = None
         self._max_threads = None
 
+        self._config_file = None
+        self._ignore_config_file = False
+
         try:
             self._config_file = ConfigParser.ConfigParser()
-            self._ignore_config_file = False
-            self._logger.info('A configuration file was found and will be used.')
+            self._config_file.read('.rabbitholeconfig')
+            self._logger.info('A .rabbitholeconfig file was found and will be used.')
         except:
-            self._logger.warn('No configuration file was found. No problem, but thought you might want to know.')
-            self._logger.warn("Configuration error: ", sys.exc_info()[0])
+            self._logger.info("An error occurred reading the .rabbitholeconfig file: ", sys.exc_info()[0])
             self._ignore_config_file = True
+
+        self._logger.info('Ignore? {0}'.format(self._ignore_config_file))
 
     @property
     def command_line_args(self):
@@ -43,11 +46,12 @@ class Configuration(object):
     def enable_logging(self):
         if self._enable_logging is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('General', 'EnableLogging'):
                     config_file_value = self._config_file.getboolean('General', 'EnableLogging')
 
-            if self.command_line_args.enable_logging is not None:
+            if hasattr(self.command_line_args, 'enable_logging') and self.command_line_args.enable_logging is not None:
                 self.enable_logging = self.command_line_args.enable_logging
             elif config_file_value is not None:
                 self.enable_logging = config_file_value
@@ -64,11 +68,12 @@ class Configuration(object):
     def rabbit_host_url(self):
         if self._rabbit_host_url is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('RabbitMQ', 'HostUrl'):
                     config_file_value = self._config_file.get('RabbitMQ', 'HostUrl')
 
-            if self.command_line_args.rabbit_host_url is not None:
+            if hasattr(self.command_line_args, 'rabbit_host_url') and self.command_line_args.rabbit_host_url is not None:
                 self.rabbit_host_url = self.command_line_args.rabbit_host_url
             elif config_file_value is not None:
                 self.rabbit_host_url = config_file_value
@@ -85,11 +90,12 @@ class Configuration(object):
     def rabbit_host_port(self):
         if self._rabbit_host_port is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('RabbitMQ', 'HostPort'):
                     config_file_value = self._config_file.getint('RabbitMQ', 'HostPort')
 
-            if self.command_line_args.rabbit_host_port is not None:
+            if hasattr(self.command_line_args, 'rabbit_host_port') and self.command_line_args.rabbit_host_port is not None:
                 self.rabbit_host_port = self.command_line_args.rabbit_host_port
             elif config_file_value is not None:
                 self.rabbit_host_port = config_file_value
@@ -106,11 +112,13 @@ class Configuration(object):
     def rabbit_username(self):
         if self._rabbit_username is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
+                self._logger.info('Config file is being used.')
                 if self._config_file.has_option('RabbitMQ', 'Username'):
                     config_file_value = self._config_file.get('RabbitMQ', 'Username')
 
-            if self.command_line_args.rabbit_username is not None:
+            if hasattr(self.command_line_args, 'rabbit_username') and self.command_line_args.rabbit_username is not None:
                 self.rabbit_username = self.command_line_args.rabbit_username
             elif config_file_value is not None:
                 self.rabbit_username = config_file_value
@@ -127,11 +135,12 @@ class Configuration(object):
     def rabbit_password(self):
         if self._rabbit_password is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('RabbitMQ', 'Password'):
                     config_file_value = self._config_file.get('RabbitMQ', 'Password')
 
-            if self.command_line_args.rabbit_password is not None:
+            if hasattr(self.command_line_args, 'rabbit_password') and self.command_line_args.rabbit_password is not None:
                 self.rabbit_password = self.command_line_args.rabbit_password
             elif config_file_value is not None:
                 self.rabbit_password = config_file_value
@@ -146,17 +155,20 @@ class Configuration(object):
 
     @property
     def rabbit_authorization_string(self):
-        return base64.encodestring('%s:%s' % (self.rabbit_username, self.rabbit_password)).replace('\n', '')
+        self._logger.info('User: {0}, Pass: {1}'.format(self.rabbit_username, self.rabbit_password))
+        encoded_value = base64.encodestring('%s:%s' % (self.rabbit_username, self.rabbit_password)).replace('\n', '')
+        return 'Basic {0}'.format(encoded_value)
 
     @property
     def rabbit_vhost(self):
         if self._rabbit_vhost is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('RabbitMQ', 'VHost'):
                     config_file_value = self._config_file.get('RabbitMQ', 'VHost')
 
-            if self.command_line_args.rabbit_vhost is not None:
+            if hasattr(self.command_line_args, 'rabbit_vhost') and self.command_line_args.rabbit_vhost is not None:
                 self.rabbit_vhost = self.command_line_args.rabbit_vhost
             elif config_file_value is not None:
                 self.rabbit_vhost = config_file_value
@@ -173,11 +185,12 @@ class Configuration(object):
     def simulate(self):
         if self._simulate is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('General', 'Simulate'):
                     config_file_value = self._config_file.getboolean('General', 'Simulate')
 
-            if self.command_line_args.simulate is not None:
+            if hasattr(self.command_line_args, 'simulate') and self.command_line_args.simulate is not None:
                 self.simulate = self.command_line_args.simulate
             elif config_file_value is not None:
                 self.simulate = config_file_value
@@ -194,11 +207,12 @@ class Configuration(object):
     def verbose(self):
         if self._verbose is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('General', 'Verbose'):
                     config_file_value = self._config_file.getboolean('General', 'Verbose')
 
-            if self.command_line_args.verbose is not None:
+            if hasattr(self.command_line_args, 'verbose') and self.command_line_args.verbose is not None:
                 self.verbose = self.command_line_args.verbose
             elif config_file_value is not None:
                 self.verbose = config_file_value
@@ -215,11 +229,12 @@ class Configuration(object):
     def max_threads(self):
         if self._max_threads is None:
 
+            config_file_value = None
             if self._ignore_config_file is False:
                 if self._config_file.has_option('General', 'max_threads'):
                     config_file_value = self._config_file.getint('General', 'MaxThreads')
 
-            if self.command_line_args.max_threads is not None:
+            if hasattr(self.command_line_args, 'max_threads') and self.command_line_args.max_threads is not None:
                 self.max_threads = self.command_line_args.max_threads
             elif config_file_value is not None:
                 self.max_threads = config_file_value
@@ -249,6 +264,7 @@ class Configuration(object):
         parser.add_argument('--simulate', action='store_true')
         parser.add_argument('--verbose', action='store_true')
         parser.add_argument('--max_threads', type=int, help='the maximum number of threads to use')
+        parser.add_argument('--enable_logging', action='store_true')
 
         subparsers = parser.add_subparsers(help='commands', dest='command')
 

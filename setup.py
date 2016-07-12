@@ -9,8 +9,12 @@ PRODUCT_NAME = 'RabbitHole'
 # Dependencies are automatically detected, but it might need
 # fine tuning.
 
+# build_exe_options = dict(
+#     packages = ["os", "RabbitHole.message", "RabbitHole.rabbitmq"],
+#     excludes = [])
+
 build_exe_options = dict(
-    packages = ["os", "RabbitHole.message", "RabbitHole.rabbitmq"],
+    packages = ["os"],
     excludes = [])
 
 bdist_msi_options = {

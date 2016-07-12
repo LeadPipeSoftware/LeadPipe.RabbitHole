@@ -1,5 +1,5 @@
-import RabbitHole.message as msg
-import RabbitHole.rabbitmq as rabbit
+from RabbitHole.rabbitmq_message_helper import RabbitMQMessageHelper
+from RabbitHole.rabbitmq import RabbitMQ
 
 
 class SnagCommand(object):
@@ -10,6 +10,8 @@ class SnagCommand(object):
         self._configuration = configuration
         self._console = console
         self._logger = logger
+        self._rabbitmq_message_helper = RabbitMQMessageHelper(configuration, console, logger)
+        self._rabbitmq = RabbitMQ(configuration, console, logger)
 
     def execute(self):
         """Executes the command.
@@ -26,15 +28,15 @@ class SnagCommand(object):
                                              self._configuration.command_line_args.save_file)
             self._console.write_divider()
 
-        messages = rabbit.get_rabbit_messages_from_queue(self._configuration.command_line_args.message_count,
-                                                         self._configuration.rabbit_host_url,
-                                                         self._configuration.rabbit_port,
-                                                         self._configuration.rabbit_vhost,
-                                                         self._configuration.command_line_args.message_source_queue,
-                                                         self._configuration.rabbit_authorization_string,
-                                                         True,
-                                                         self._configuration.verbose)
+        messages = self._rabbitmq.get_rabbit_messages_from_queue(self._configuration.command_line_args.message_count,
+                                                                 self._configuration.rabbit_host_url,
+                                                                 self._configuration.rabbit_port,
+                                                                 self._configuration.rabbit_vhost,
+                                                                 self._configuration.command_line_args.message_source_queue,
+                                                                 self._configuration.rabbit_authorization_string,
+                                                                 True,
+                                                                 self._configuration.verbose)
 
-        msg.save_rabbit_messages_to_file(messages,
-                                         self._configuration.save_file,
-                                         self._configuration.command_line_args.simulate)
+        self._rabbitmq_message_helper.save_rabbit_messages_to_file(messages,
+                                                                   self._configuration.save_file,
+                                                                   self._configuration.command_line_args.simulate)

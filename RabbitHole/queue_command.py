@@ -2,8 +2,8 @@ import threading
 
 from Queue import Queue
 
-import RabbitHole.message as msg
-import RabbitHole.rabbitmq as rabbit
+from RabbitHole.rabbitmq_message_helper import RabbitMQMessageHelper
+from RabbitHole.rabbitmq import RabbitMQ
 
 
 class QueueCommand(object):
@@ -14,6 +14,8 @@ class QueueCommand(object):
         self._configuration = configuration
         self._console = console
         self._logger = logger
+        self._rabbitmq_message_helper = RabbitMQMessageHelper(configuration, console, logger)
+        self._rabbitmq = RabbitMQ(configuration, console, logger)
 
     def queue_file(self):
         """Sends messages to a queue from a JSON-formatted file.
@@ -28,18 +30,19 @@ class QueueCommand(object):
                                              self._configuration.command_line_args.rabbit_destination_queue)
             self._console.write_divider()
 
-        messages = msg.get_rabbit_messages_from_file(self._configuration.command_line_args.message_source_file,
-                                                     self._configuration.simulate,
-                                                     self._configuration.verbose)
+        messages = self._rabbitmq_message_helper.get_rabbit_messages_from_file(
+            self._configuration.command_line_args.message_source_file,
+            self._configuration.simulate,
+            self._configuration.verbose)
 
-        rabbit.publish_messages(messages,
-                                self._configuration.rabbit_host_url,
-                                self._configuration.rabbit_host_port,
-                                self._configuration.rabbit_vhost,
-                                self._configuration.rabbit_authorization_string,
-                                self._configuration.command_line_args.rabbit_destination_queue,
-                                self._configuration.simulate,
-                                self._configuration.verbose)
+        self._rabbitmq.publish_messages(messages,
+                                        self._configuration.rabbit_host_url,
+                                        self._configuration.rabbit_host_port,
+                                        self._configuration.rabbit_vhost,
+                                        self._configuration.rabbit_authorization_string,
+                                        self._configuration.command_line_args.rabbit_destination_queue,
+                                        self._configuration.simulate,
+                                        self._configuration.verbose)
 
     def queue_folder(self):
         """Sends messages to a queue from all JSON-formatted files in a folder.
@@ -53,7 +56,7 @@ class QueueCommand(object):
 
         number_of_threads = self._configuration.max_threads
 
-        message_files = msg.get_rabbit_message_files_in_folder(
+        message_files = self._rabbitmq_message_helper.get_rabbit_message_files_in_folder(
             self._configuration.command_line_args.message_source_file)
 
         for message_file in message_files:
@@ -97,17 +100,18 @@ class QueueCommand(object):
         while True:
             message_source_file = thread_queue.get()
 
-            messages = msg.get_rabbit_messages_from_file(message_source_file, self._configuration.simulate,
-                                                         self._configuration.verbose)
+            messages = self._rabbitmq_message_helper.get_rabbit_messages_from_file(message_source_file,
+                                                                                   self._configuration.simulate,
+                                                                                   self._configuration.verbose)
 
-            rabbit.publish_messages(messages,
-                                    self._configuration.rabbit_host_url,
-                                    self._configuration.rabbit_host_port,
-                                    self._configuration.rabbit_vhost,
-                                    self._configuration.rabbit_authorization_string,
-                                    self._configuration.command_line_args.rabbit_destination_queue,
-                                    self._configuration.simulate,
-                                    self._configuration.verbose)
+            self._rabbitmq.publish_messages(messages,
+                                            self._configuration.rabbit_host_url,
+                                            self._configuration.rabbit_host_port,
+                                            self._configuration.rabbit_vhost,
+                                            self._configuration.rabbit_authorization_string,
+                                            self._configuration.command_line_args.rabbit_destination_queue,
+                                            self._configuration.simulate,
+                                            self._configuration.verbose)
 
             thread_queue.task_done()
 

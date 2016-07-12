@@ -1,4 +1,4 @@
-import RabbitHole.rabbitmq as rabbit
+from RabbitHole.rabbitmq import RabbitMQ
 
 
 class ReplayCommand(object):
@@ -9,6 +9,7 @@ class ReplayCommand(object):
         self._configuration = configuration
         self._console = console
         self._logger = logger
+        self._rabbitmq = RabbitMQ(configuration, console, logger)
 
     def execute(self):
         """Executes the command.
@@ -25,20 +26,20 @@ class ReplayCommand(object):
                                              self._configuration.command_line_args.rabbit_destination_queue)
             self._console.write_divider()
 
-        messages = rabbit.get_rabbit_messages_from_queue(self._configuration.command_line_args.message_count,
-                                                         self._configuration.rabbit_host_url,
-                                                         self._configuration.rabbit_host_port,
-                                                         self._configuration.rabbit_vhost,
-                                                         self._configuration.command_line_args.message_source_queue,
-                                                         self._configuration.rabbit_authorization_string,
-                                                         True,
-                                                         self._configuration.verbose)
+        messages = self._rabbitmq.get_rabbit_messages_from_queue(self._configuration.command_line_args.message_count,
+                                                                 self._configuration.rabbit_host_url,
+                                                                 self._configuration.rabbit_host_port,
+                                                                 self._configuration.rabbit_vhost,
+                                                                 self._configuration.command_line_args.message_source_queue,
+                                                                 self._configuration.rabbit_authorization_string,
+                                                                 True,
+                                                                 self._configuration.verbose)
 
-        rabbit.publish_messages(messages,
-                                self._configuration.rabbit_host_url,
-                                self._configuration.rabbit_host_port,
-                                self._configuration.rabbit_vhost,
-                                self._configuration.rabbit_authorization_string,
-                                self._configuration.command_line_args.rabbit_destination_queue,
-                                self._configuration.simulate,
-                                self._configuration.verbose)
+        self._rabbitmq.publish_messages(messages,
+                                        self._configuration.rabbit_host_url,
+                                        self._configuration.rabbit_host_port,
+                                        self._configuration.rabbit_vhost,
+                                        self._configuration.rabbit_authorization_string,
+                                        self._configuration.command_line_args.rabbit_destination_queue,
+                                        self._configuration.simulate,
+                                        self._configuration.verbose)
