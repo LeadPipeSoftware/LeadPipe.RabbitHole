@@ -35,40 +35,40 @@ class RabbitMQ(object):
         'NServiceBus.ProcessingMachine']
     NSERVICEBUS_ERROR_HEADERS = ['NServiceBus.FailedQ']
 
-    def build_rabbit_get_url(self, rabbit_host_url, rabbit_port, rabbit_vhost, message_source_queue):
+    def build_rabbit_get_url(self, rabbit_host_url, rabbit_host_port, rabbit_vhost, message_source_queue):
         """Builds the RabbitMQ GET URL.
 
         :param rabbit_host_url: The RabbitMQ host URL.
-        :param rabbit_port: The RabbitMQ host port.
+        :param rabbit_host_port: The RabbitMQ host port.
         :param rabbit_vhost: The RabbitMQ vhost.
         :param message_source_queue: The name of the RabbitMQ source queue.
         :return: A fully-constructed GET URL for RabbitMQ.
         """
 
         url = rabbit_host_url + ':' + str(
-            rabbit_port) + '/api/queues/' + rabbit_vhost + '/' + message_source_queue + '/get'
+            rabbit_host_port) + '/api/queues/' + rabbit_vhost + '/' + message_source_queue + '/get'
 
         return url
 
-    def build_rabbit_publish_url(self, rabbit_host_url, rabbit_port, rabbit_vhost, rabbit_destination_queue):
+    def build_rabbit_publish_url(self, rabbit_host_url, rabbit_host_port, rabbit_vhost, rabbit_destination_queue):
         """Builds the RabbitMQ publish URL.
 
         :param rabbit_host_url: The RabbitMQ host URL.
-        :param rabbit_port: The RabbitMQ host port.
+        :param rabbit_host_port: The RabbitMQ host port.
         :param rabbit_vhost: The RabbitMQ vhost.
         :param rabbit_destination_queue: The name of the RabbitMQ source queue.
         :return: A fully-constructed publish URL for RabbitMQ.
         """
 
         url = rabbit_host_url + ':' + str(
-            rabbit_port) + '/api/exchanges/' + rabbit_vhost + '/' + rabbit_destination_queue + '/publish'
+            rabbit_host_port) + '/api/exchanges/' + rabbit_vhost + '/' + rabbit_destination_queue + '/publish'
 
         return url
 
     def get_rabbit_messages_from_queue(self,
                                        message_count,
                                        rabbit_host_url,
-                                       rabbit_port,
+                                       rabbit_host_port,
                                        rabbit_vhost,
                                        message_source_queue,
                                        rabbit_authorization_string,
@@ -78,7 +78,7 @@ class RabbitMQ(object):
 
         :param message_count: The number of messages to get.
         :param rabbit_host_url: The RabbitMQ host URL.
-        :param rabbit_port: The RabbitMQ host port.
+        :param rabbit_host_port: The RabbitMQ host port.
         :param rabbit_vhost: The RabbitMQ vhost.
         :param message_source_queue: The name of the RabbitMQ source queue.
         :param rabbit_authorization_string: The authorization string for the request header.
@@ -89,7 +89,7 @@ class RabbitMQ(object):
 
         self._console.write_update('Getting messages from {0}...'.format(message_source_queue))
 
-        rabbit_url = self.build_rabbit_get_url(rabbit_host_url, rabbit_port, rabbit_vhost, message_source_queue)
+        rabbit_url = self.build_rabbit_get_url(rabbit_host_url, rabbit_host_port, rabbit_vhost, message_source_queue)
 
         if requeue:
             rabbit_request_data = {'count': message_count, 'requeue': 'true', 'encoding': 'auto'}
@@ -109,7 +109,7 @@ class RabbitMQ(object):
     def publish_messages(self,
                          messages,
                          rabbit_host_url,
-                         rabbit_port,
+                         rabbit_host_port,
                          rabbit_vhost,
                          rabbit_authorization_string,
                          destination_queue=None,
@@ -119,7 +119,7 @@ class RabbitMQ(object):
 
         :param messages: A list of the messages to publish.
         :param rabbit_host_url: The RabbitMQ host URL.
-        :param rabbit_port: The RabbitMQ host port.
+        :param rabbit_host_port: The RabbitMQ host port.
         :param rabbit_vhost: The RabbitMQ vhost.
         :param rabbit_authorization_string: The authorization string for the request header.
         :param destination_queue: The queue to publish to (if None, the messages will be re-published).
@@ -151,7 +151,7 @@ class RabbitMQ(object):
             message = self._rabbitmq_message_helper.scrub_message(message, self.NSERVICEBUS_AUDIT_HEADERS)
             message = self._rabbitmq_message_helper.scrub_message(message, self.NSERVICEBUS_ERROR_HEADERS)
 
-            rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_port, rabbit_vhost, destination_queue)
+            rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost, destination_queue)
 
             json_message = json.dumps(message)
 

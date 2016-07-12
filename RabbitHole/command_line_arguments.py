@@ -22,7 +22,7 @@ class CommandLineArguments(object):
 
         # Common arguments
         parser.add_argument('-r', '--rabbit_host_url', help='the RabbitMQ host URL')
-        parser.add_argument('-p', '--rabbit_port', type=int, help='the RabbitMQ port')
+        parser.add_argument('-p', '--rabbit_host_port', type=int, help='the RabbitMQ port')
         parser.add_argument('-s', '--rabbit_vhost', help='the RabbitMQ vhost name')
         parser.add_argument('-z', '--rabbit_authorization_string',
                             help='the authorization string for the RabbitMQ request header')

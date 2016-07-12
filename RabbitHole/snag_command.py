@@ -31,7 +31,7 @@ class SnagCommand(object):
         messages = self._rabbitmq.get_rabbit_messages_from_queue(
             self._configuration.command_line_arguments.message_count,
             self._configuration.rabbit_host_url,
-            self._configuration.rabbit_port,
+            self._configuration.rabbit_host_port,
             self._configuration.rabbit_vhost,
             self._configuration.command_line_arguments.message_source_queue,
             self._configuration.rabbit_authorization_string,
