@@ -3,10 +3,10 @@
 from __future__ import print_function
 
 import json
+import logging
 import requests
 import sys
 
-import RabbitHole.console as con
 import RabbitHole.message as msg
 
 print = lambda x: sys.stdout.write("%s\n" % x)
@@ -84,7 +84,7 @@ def get_rabbit_messages_from_queue(message_count,
     :return: A list of the requested messages.
     """
 
-    con.write_update('Getting messages from {0}...'.format(message_source_queue))
+    CON.write_update('Getting messages from {0}...'.format(message_source_queue))
 
     rabbit_url = build_rabbit_get_url(rabbit_host_url, rabbit_port, rabbit_vhost, message_source_queue)
 
@@ -98,7 +98,7 @@ def get_rabbit_messages_from_queue(message_count,
     rabbit_response = requests.post(rabbit_url, data=rabbit_request_json, headers=rabbit_request_headers)
 
     if rabbit_response.status_code != 200:
-        con.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+        CON.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
         sys.exit(1)
 
     return rabbit_response.json()
@@ -126,7 +126,7 @@ def publish_messages(messages,
     """
 
     if not messages:
-        con.write_update('No messages to process!')
+        CON.write_update('No messages to process!')
         return
 
     rabbit_request_headers = {'Content-type': 'application/json', 'Authorization': rabbit_authorization_string}
@@ -140,7 +140,8 @@ def publish_messages(messages,
         if not destination_queue:
             destination_queue = msg.get_source_queue(message)
 
-        con.write_update('{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
+        CON.write_update(
+            '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
 
         message = msg.scrub_message(message, NSERVICEBUS_RUNTIME_HEADERS)
         message = msg.scrub_message(message, NSERVICEBUS_DIAGNOSTIC_HEADERS)
@@ -151,19 +152,19 @@ def publish_messages(messages,
 
         json_message = json.dumps(message)
 
-        con.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
+        CON.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
 
         if simulate:
-            con.write_simulated_update('[200] Success!')
+            CON.write_simulated_update('[200] Success!')
         else:
             rabbit_response = requests.post(rabbit_url, data=json_message, headers=rabbit_request_headers)
 
             if rabbit_response.status_code != 200:
-                con.write_update('The RabbitMQ response was {0}'.format(rabbit_response.status_code))
-                con.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+                CON.write_update('The RabbitMQ response was {0}'.format(rabbit_response.status_code))
+                CON.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
                 sys.exit(1)
             else:
-                con.write_update('[{0}] Success!'.format(rabbit_response.status_code))
+                CON.write_update('[{0}] Success!'.format(rabbit_response.status_code))
 
     return processed_messages
 

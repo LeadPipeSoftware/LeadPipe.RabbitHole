@@ -3,11 +3,10 @@
 from __future__ import print_function
 
 import json
+import logging
 import sys
 
 import os.path
-
-import RabbitHole.console as con
 
 print = lambda x: sys.stdout.write("%s\n" % x)
 
@@ -21,7 +20,7 @@ def save_rabbit_messages_to_file(messages, save_file, simulate=False):
     """
 
     if simulate:
-        con.write_simulated_update('Saving messages to {0}'.format(save_file))
+        CON.write_simulated_update('Saving messages to {0}'.format(save_file))
     else:
         if messages:
             with open(save_file, 'w') as file_to_save:
@@ -29,7 +28,7 @@ def save_rabbit_messages_to_file(messages, save_file, simulate=False):
                     file_to_save.write('[')                
                 saved_count = 0
                 for message in messages:
-                    con.write_update('Saving {0} messages to {1}'.format(len(messages), save_file))
+                    CON.write_update('Saving {0} messages to {1}'.format(len(messages), save_file))
                     file_to_save.write(json.dumps(message, indent=2))
                     saved_count += 1
                     if saved_count < len(messages):
@@ -38,7 +37,7 @@ def save_rabbit_messages_to_file(messages, save_file, simulate=False):
                     file_to_save.write(']')
 
         else:
-            con.write_error('No messages found!')
+            CON.write_error('No messages found!')
 
 
 def get_rabbit_messages_from_file(message_file_name, simulate=False, verbose=False):
@@ -51,12 +50,12 @@ def get_rabbit_messages_from_file(message_file_name, simulate=False, verbose=Fal
     """
 
     if simulate:
-        con.write_simulated_update('Getting messages from {0}\033[0m'.format(message_file_name))
+        CON.write_simulated_update('Getting messages from {0}\033[0m'.format(message_file_name))
     else:
-        con.write_update('Getting messages from {0}'.format(message_file_name))
+        CON.write_update('Getting messages from {0}'.format(message_file_name))
 
         if not os.path.isfile(message_file_name):
-            con.write_error('{0} not found!'.format(message_file_name))
+            CON.write_error('{0} not found!'.format(message_file_name))
             raise IOError()
 
         try:
