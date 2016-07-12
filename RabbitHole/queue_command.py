@@ -25,13 +25,13 @@ class QueueCommand(object):
 
         if self._configuration.verbose:
             self._console.write_keyvaluepair('      Source File',
-                                             self._configuration.command_line_args.message_source_file)
+                                             self._configuration.command_line_arguments.message_source_file)
             self._console.write_keyvaluepair('Destination Queue',
-                                             self._configuration.command_line_args.rabbit_destination_queue)
+                                             self._configuration.command_line_arguments.rabbit_destination_queue)
             self._console.write_divider()
 
         messages = self._rabbitmq_message_helper.get_rabbit_messages_from_file(
-            self._configuration.command_line_args.message_source_file,
+            self._configuration.command_line_arguments.message_source_file,
             self._configuration.simulate,
             self._configuration.verbose)
 
@@ -40,7 +40,7 @@ class QueueCommand(object):
                                         self._configuration.rabbit_host_port,
                                         self._configuration.rabbit_vhost,
                                         self._configuration.rabbit_authorization_string,
-                                        self._configuration.command_line_args.rabbit_destination_queue,
+                                        self._configuration.command_line_arguments.rabbit_destination_queue,
                                         self._configuration.simulate,
                                         self._configuration.verbose)
 
@@ -57,15 +57,15 @@ class QueueCommand(object):
         number_of_threads = self._configuration.max_threads
 
         message_files = self._rabbitmq_message_helper.get_rabbit_message_files_in_folder(
-            self._configuration.command_line_args.message_source_file)
+            self._configuration.command_line_arguments.message_source_file)
 
         for message_file in message_files:
             THREAD_QUEUE.put(message_file)
 
         self._console.write_keyvaluepair('    Source Folder',
-                                         self._configuration.command_line_args.message_source_file)
+                                         self._configuration.command_line_arguments.message_source_file)
         self._console.write_keyvaluepair('Destination Queue',
-                                         self._configuration.command_line_args.rabbit_destination_queue)
+                                         self._configuration.command_line_arguments.rabbit_destination_queue)
         self._console.write_keyvaluepair('       File Count',
                                          len(message_files))
         self._console.write_keyvaluepair('       Queue Size',
@@ -109,7 +109,7 @@ class QueueCommand(object):
                                             self._configuration.rabbit_host_port,
                                             self._configuration.rabbit_vhost,
                                             self._configuration.rabbit_authorization_string,
-                                            self._configuration.command_line_args.rabbit_destination_queue,
+                                            self._configuration.command_line_arguments.rabbit_destination_queue,
                                             self._configuration.simulate,
                                             self._configuration.verbose)
 
