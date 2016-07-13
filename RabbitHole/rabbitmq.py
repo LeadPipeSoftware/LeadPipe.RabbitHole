@@ -121,36 +121,42 @@ class RabbitMQ(object):
         if verbose:
             self._console.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
 
-        for message in messages:
+        with requests.Session() as session:
+            # pool_connections is the number of connection pools to cache (default 10)
+            # pool_maxsize is the maximum number of connections to save in the pool (default 10)
+            # adapter = requests.adapters.HTTPAdapter(pool_connections=10, pool_maxsize=10)
+            # session.mount('http://', adapter)
 
-            processed_messages += 1
+            for message in messages:
 
-            if not destination_queue:
-                destination_queue = self._rabbitmq_message_helper.get_source_queue(message)
+                processed_messages += 1
 
-            if len(messages) > 1:
-                self._console.write_update(
-                    '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
-            else:
-                self._console.write_update(
-                    'Publishing message to {0}'.format(destination_queue))
+                if not destination_queue:
+                    destination_queue = self._rabbitmq_message_helper.get_source_queue(message)
 
-            self._logger.debug('Scrubbing {0} from message'.format(self._configuration.message_headers_to_remove))
-            message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.message_headers_to_remove)
-
-            json_message = json.dumps(message)
-
-            if simulate:
-                self._console.write_simulated_update('[200] Success!')
-            else:
-                rabbit_response = requests.post(rabbit_url, data=json_message, headers=rabbit_request_headers)
-
-                if rabbit_response.status_code != 200:
-                    self._console.write_update('The RabbitMQ response was {0}'.format(rabbit_response.status_code))
-                    self._console.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
-                    sys.exit(1)
+                if len(messages) > 1:
+                    self._console.write_update(
+                        '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
                 else:
-                    self._console.write_update('[{0}] Success!'.format(rabbit_response.status_code))
+                    self._console.write_update(
+                        'Publishing message to {0}'.format(destination_queue))
+
+                self._logger.debug('Scrubbing {0} from message'.format(self._configuration.message_headers_to_remove))
+                message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.message_headers_to_remove)
+
+                json_message = json.dumps(message)
+
+                if simulate:
+                    self._console.write_simulated_update('[200] Success!')
+                else:
+                    rabbit_response = session.post(rabbit_url, data=json_message, headers=rabbit_request_headers)
+
+                    if rabbit_response.status_code != 200:
+                        self._console.write_update('The RabbitMQ response was {0}'.format(rabbit_response.status_code))
+                        self._console.write_error('[{0}]{1}'.format(rabbit_response.status_code, rabbit_response.text))
+                        sys.exit(1)
+                    else:
+                        self._console.write_update('[{0}] Success!'.format(rabbit_response.status_code))
 
         return processed_messages
 

@@ -32,14 +32,14 @@ class Configuration(object):
         try:
             self._config_file = ConfigParser.ConfigParser()
 
-            config_file_name = '.' + __program_name__ + 'config'
+            config_file_name = '.' + __program_name__ + 'Config'
             user_config_file_name = os.path.join(os.path.expanduser('~'), config_file_name)
 
             if os.path.isfile(user_config_file_name):
                 self._config_file.read(user_config_file_name)
             elif os.path.isfile(config_file_name):
                 self._config_file.read(config_file_name)
-            self._logger.info('{0} file found and will be used'.format(config_file_name))
+            self._logger.info('The {0} file was found and will be used'.format(config_file_name))
             self._ignore_config_file = False
         except ConfigParser.Error, err:
             if not self._silent:
@@ -50,8 +50,6 @@ class Configuration(object):
 
     @property
     def using_config_file(self):
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('using_config_file', not self._ignore_config_file))
         return not self._ignore_config_file
 
     @property
@@ -74,9 +72,6 @@ class Configuration(object):
                 self.rabbit_host_url = config_file_value
             else:
                 self.rabbit_host_url = 'http://localhost'
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('rabbit_host_url', self._rabbit_host_url))
 
         return self._rabbit_host_url
 
@@ -101,9 +96,6 @@ class Configuration(object):
             else:
                 self.rabbit_host_port = 15672
 
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('rabbit_host_port', self._rabbit_host_port))
-
         return self._rabbit_host_port
 
     @rabbit_host_port.setter
@@ -126,9 +118,6 @@ class Configuration(object):
                 self.rabbit_username = config_file_value
             else:
                 self.rabbit_username = 'guest'
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('rabbit_username', self._rabbit_username))
 
         return self._rabbit_username
 
@@ -153,9 +142,6 @@ class Configuration(object):
             else:
                 self.rabbit_password = 'guest'
 
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('rabbit_password', self._rabbit_password))
-
         return self._rabbit_password
 
     @rabbit_password.setter
@@ -165,8 +151,6 @@ class Configuration(object):
     @property
     def rabbit_authorization_string(self):
         encoded_value = base64.encodestring('%s:%s' % (self.rabbit_username, self.rabbit_password)).replace('\n', '')
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('rabbit_authorization_string', 'Basic {0}'.format(encoded_value)))
         return 'Basic {0}'.format(encoded_value)
 
     @property
@@ -185,9 +169,6 @@ class Configuration(object):
                 self.rabbit_vhost = config_file_value
             else:
                 self.rabbit_vhost = '%2F'  # The base64 encoding of a forward slash
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('rabbit_vhost', self._rabbit_vhost))
 
         return self._rabbit_vhost
 
@@ -211,9 +192,6 @@ class Configuration(object):
                 self.source_queue_header_key = config_file_value
             else:
                 self.source_queue_header_key = 'NServiceBus.FailedQ'
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('source_queue_header_key', self._source_queue_header_key))
 
         return self._source_queue_header_key
 
@@ -258,9 +236,6 @@ class Configuration(object):
             else:
                 self.message_headers_to_remove = nservicebus_runtime_headers + nservicebus_diagnostic_headers + nservicebus_audit_headers + nservicebus_error_headers
 
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('message_headers_to_remove', self._message_headers_to_remove))
-
         return self._message_headers_to_remove
 
     @message_headers_to_remove.setter
@@ -282,9 +257,6 @@ class Configuration(object):
                 self.simulate = config_file_value
             else:
                 self.simulate = False
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('simulate', self._simulate))
 
         return self._simulate
 
@@ -308,9 +280,6 @@ class Configuration(object):
             else:
                 self.verbose = False
 
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('verbose', self._verbose))
-
         return self._verbose
 
     @verbose.setter
@@ -332,9 +301,6 @@ class Configuration(object):
                 self.silent = config_file_value
             else:
                 self.silent = False
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('silent', self._silent))
 
         return self._silent
 
@@ -370,7 +336,7 @@ class Configuration(object):
 
             config_file_value = None
             if self._ignore_config_file is False:
-                if self._config_file.has_option('General', 'max_threads'):
+                if self._config_file.has_option('General', 'MaxThreads'):
                     config_file_value = self._config_file.getint('General', 'MaxThreads')
 
             if hasattr(self.command_line_arguments,
@@ -380,9 +346,6 @@ class Configuration(object):
                 self.max_threads = config_file_value
             else:
                 self.max_threads = 1
-
-        if self.debug:
-            self._logger.debug('{0}:{1}'.format('max_threads', self._max_threads))
 
         return self._max_threads
 
