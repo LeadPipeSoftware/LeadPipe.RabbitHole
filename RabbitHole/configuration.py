@@ -345,7 +345,7 @@ class Configuration(object):
             elif config_file_value is not None:
                 self.max_threads = config_file_value
             else:
-                self.max_threads = 1
+                self.max_threads = 10
 
         return self._max_threads
 
