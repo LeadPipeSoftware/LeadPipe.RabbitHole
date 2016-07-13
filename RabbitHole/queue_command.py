@@ -82,12 +82,19 @@ class QueueCommand(object):
             worker.setDaemon(True)
             thread_list.append(worker)
 
+        self._console.write_update(
+            'Publishing {0} message files to {1}'.format(len(message_files),
+                                                         self._configuration.command_line_arguments.rabbit_destination_queue))
+        self._configuration.silent = True
+
         # Start the threads
         for i in thread_list:
             i.start()
 
         # Wait for the queue to be empty
         THREAD_QUEUE.join()
+
+        self._configuration.silent = False
 
     def _queue_file_on_thread(self, thread_queue):
         """Sends messages to a queue from a JSON-formatted file.

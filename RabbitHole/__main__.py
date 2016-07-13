@@ -22,21 +22,23 @@ print = lambda x: sys.stdout.write("%s\n" % x)
 def main(args=None):
     """The program entry point."""
 
+    # Get the command line args...
     command_line_arguments = CommandLineArguments()
     parsed_arguments = command_line_arguments.parsed_arguments
 
-    config = Configuration(parsed_arguments)
-
+    # Set up logging...
     log_format = '%(levelname) -10s %(asctime)s %(name) -30s %(funcName) -35s %(lineno) -5d: %(message)s'
     if parsed_arguments.debug:
         logging.basicConfig(filename=__program_name__ + '.log', filemode='w', level=logging.DEBUG, format=log_format)
     else:
         logging.basicConfig(filename=__program_name__ + '.log', filemode='w', level=logging.INFO, format=log_format)
-
     logger = logging.getLogger(__name__)
-
     logger.info('{0} {1}'.format(__program_name__, __version__))
 
+    # Set the configuration...
+    config = Configuration(logger, parsed_arguments)
+
+    # Fire up the console...
     console = Console(config)
 
     console.display_welcome(__program_name__, __version__)

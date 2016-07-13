@@ -41,13 +41,13 @@ class CommandLineArguments(object):
         output_group = parser.add_mutually_exclusive_group()
         output_group.add_argument('--verbose',
                                   action='store_true',
-                                  help='enables more detailed console output')
+                                  help='enables verbose output')
         output_group.add_argument('--silent',
                                   action='store_true',
                                   help='stops all console output')
         output_group.add_argument('--debug',
                                   action='store_true',
-                                  help='enables debug mode (verbose & debug logging)')
+                                  help='enables debug output')
 
         parser.add_argument('--max_threads',
                             type=int,
