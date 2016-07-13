@@ -27,13 +27,16 @@ class CommandLineArguments(object):
         parser.add_argument('-p',
                             '--rabbit_host_port',
                             type=int,
-                            help='the RabbitMQ port')
+                            help='the RabbitMQ host port')
         parser.add_argument('-s',
                             '--rabbit_vhost',
                             help='the RabbitMQ vhost name')
-        parser.add_argument('-z',
-                            '--rabbit_authorization_string',
-                            help='the authorization string for the RabbitMQ request header')
+        parser.add_argument('-u',
+                            '--rabbit_username',
+                            help='the RabbitMQ username')
+        parser.add_argument('-w',
+                            '--rabbit_password',
+                            help='the RabbitMQ password')
         parser.add_argument('--simulate',
                             action='store_true',
                             help='simulates all execution')
