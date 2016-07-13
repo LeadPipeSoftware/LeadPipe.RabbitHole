@@ -32,7 +32,7 @@ class Configuration(object):
         try:
             self._config_file = ConfigParser.ConfigParser()
 
-            config_file_name = '.' + __program_name__ + 'Config'
+            config_file_name = __program_name__ + '.ini'
             user_config_file_name = os.path.join(os.path.expanduser('~'), config_file_name)
 
             if os.path.isfile(user_config_file_name):
