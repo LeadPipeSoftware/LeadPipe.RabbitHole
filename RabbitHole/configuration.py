@@ -1,15 +1,20 @@
+from __future__ import print_function
+
 import base64
 import ConfigParser
-
+import os
 import sys
+
+from RabbitHole import __program_name__
+
+print = lambda x: sys.stdout.write("%s\n" % x)
 
 
 class Configuration(object):
     """This class represents the application configuration.
     """
 
-    def __init__(self, logger, command_line_arguments):
-        self._logger = logger
+    def __init__(self, command_line_arguments):
         self._command_line_arguments = command_line_arguments
 
         self._rabbit_host_url = None
@@ -25,42 +30,33 @@ class Configuration(object):
         self._max_threads = None
 
         self._config_file = None
-        self._ignore_config_file = False
+        self._ignore_config_file = True
 
         try:
             self._config_file = ConfigParser.ConfigParser()
-            self._config_file.read('.rabbitholeconfig')
-            self._logger.info('A .rabbitholeconfig file was found and will be used.')
-        except:
-            self._logger.info("An error occurred reading the .rabbitholeconfig file: ", sys.exc_info()[0])
-            self._ignore_config_file = True
+
+            config_file_name = '.' + __program_name__ + 'config'
+            user_config_file_name = os.path.join(os.path.expanduser('~'), config_file_name)
+
+            if os.path.isfile(user_config_file_name):
+                self._config_file.read(user_config_file_name)
+            elif os.path.isfile(config_file_name):
+                self._config_file.read(config_file_name)
+            self._ignore_config_file = False
+        except ConfigParser.Error, err:
+            if not self._silent:
+                print('\033[1;31;40m+ ERROR: \033[0mUnable to parse the {0} file. {1}'.format(config_file_name, err))
+        except IOError, err:
+            if not self._silent:
+                print('\033[1;31;40m+ ERROR: \033[0mUnable to open the {0} file. {1}'.format(config_file_name, err))
+
+    @property
+    def using_config_file(self):
+        return not self._ignore_config_file
 
     @property
     def command_line_arguments(self):
         return self._command_line_arguments
-
-    @property
-    def enable_logging(self):
-        if self._enable_logging is None:
-
-            config_file_value = None
-            if self._ignore_config_file is False:
-                if self._config_file.has_option('General', 'EnableLogging'):
-                    config_file_value = self._config_file.getboolean('General', 'EnableLogging')
-
-            if hasattr(self.command_line_arguments,
-                       'enable_logging') and self.command_line_arguments.enable_logging is not None:
-                self.enable_logging = self.command_line_arguments.enable_logging
-            elif config_file_value is not None:
-                self.enable_logging = config_file_value
-            else:
-                self.enable_logging = False
-
-        return self._enable_logging
-
-    @enable_logging.setter
-    def enable_logging(self, value):
-        self._enable_logging = value
 
     @property
     def rabbit_host_url(self):

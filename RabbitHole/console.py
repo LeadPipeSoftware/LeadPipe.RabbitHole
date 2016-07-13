@@ -28,15 +28,15 @@ class Console(object):
 
         if not self._configuration.silent:
             self.write_title(program_name, program_version)
-            self.write_divider()
 
             if self._configuration.verbose:
-                self.write_keyvaluepair('         Host URL', self._configuration.rabbit_host_url)
-                self.write_keyvaluepair('             Port', self._configuration.rabbit_host_port)
-                self.write_keyvaluepair('            VHost', self._configuration.rabbit_vhost)
-                self.write_keyvaluepair('         Username', self._configuration.rabbit_username)
-                self.write_keyvaluepair('         Password', self._configuration.rabbit_password)
-                self.write_keyvaluepair('      Auth String', self._configuration.rabbit_authorization_string)
+                self.write_keyvaluepair('  Config File', self._configuration.using_config_file)
+                self.write_keyvaluepair('     Host URL', self._configuration.rabbit_host_url)
+                self.write_keyvaluepair('         Port', self._configuration.rabbit_host_port)
+                self.write_keyvaluepair('        VHost', self._configuration.rabbit_vhost)
+                self.write_keyvaluepair('     Username', self._configuration.rabbit_username)
+                self.write_keyvaluepair('     Password', self._configuration.rabbit_password)
+                self.write_keyvaluepair('  Auth String', self._configuration.rabbit_authorization_string)
                 self.write_divider()
 
             if self._configuration.simulate:

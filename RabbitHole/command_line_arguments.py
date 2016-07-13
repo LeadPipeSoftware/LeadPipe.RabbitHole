@@ -35,16 +35,23 @@ class CommandLineArguments(object):
                             '--rabbit_authorization_string',
                             help='the authorization string for the RabbitMQ request header')
         parser.add_argument('--simulate',
-                            action='store_true')
-        parser.add_argument('--verbose',
-                            action='store_true')
-        parser.add_argument('--silent',
-                            action='store_true')
+                            action='store_true',
+                            help='simulates all execution')
+
+        output_group = parser.add_mutually_exclusive_group()
+        output_group.add_argument('--verbose',
+                                  action='store_true',
+                                  help='enables more detailed console output')
+        output_group.add_argument('--silent',
+                                  action='store_true',
+                                  help='stops all console output')
+        output_group.add_argument('--debug',
+                                  action='store_true',
+                                  help='enables debug mode (verbose & debug logging)')
+
         parser.add_argument('--max_threads',
                             type=int,
                             help='the maximum number of threads to use')
-        parser.add_argument('--debug',
-                            action='store_true')
 
         subparsers = parser.add_subparsers(help='commands', dest='command')
 

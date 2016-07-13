@@ -7,6 +7,8 @@ import os
 import sys
 from timeit import default_timer as timer
 
+from RabbitHole import __program_name__
+from RabbitHole import __version__
 from RabbitHole.command_line_arguments import CommandLineArguments
 from RabbitHole.configuration import Configuration
 from RabbitHole.console import Console
@@ -16,9 +18,6 @@ from RabbitHole.queue_command import QueueCommand
 
 print = lambda x: sys.stdout.write("%s\n" % x)
 
-PROGRAM_NAME = 'RabbitHole'
-PROGRAM_VERSION = '1.0.0'
-
 
 def main(args=None):
     """The program entry point."""
@@ -26,20 +25,21 @@ def main(args=None):
     command_line_arguments = CommandLineArguments()
     parsed_arguments = command_line_arguments.parsed_arguments
 
-    LOG_FORMAT = '%(levelname) -10s %(asctime)s %(name) -30s %(funcName) -35s %(lineno) -5d: %(message)s'
+    config = Configuration(parsed_arguments)
+
+    log_format = '%(levelname) -10s %(asctime)s %(name) -30s %(funcName) -35s %(lineno) -5d: %(message)s'
     if parsed_arguments.debug:
-        logging.basicConfig(filename='RabbitHole.log', filemode='w', level=logging.DEBUG, format=LOG_FORMAT)
+        logging.basicConfig(filename=__program_name__ + '.log', filemode='w', level=logging.DEBUG, format=log_format)
     else:
-        logging.basicConfig(filename='RabbitHole.log', filemode='w', level=logging.INFO, format=LOG_FORMAT)
+        logging.basicConfig(filename=__program_name__ + '.log', filemode='w', level=logging.INFO, format=log_format)
+
     logger = logging.getLogger(__name__)
 
-    logger.info('{0} {1}'.format(PROGRAM_NAME, PROGRAM_VERSION))
-
-    config = Configuration(logger, parsed_arguments)
+    logger.info('{0} {1}'.format(__program_name__, __version__))
 
     console = Console(config)
 
-    console.display_welcome(PROGRAM_NAME, PROGRAM_VERSION)
+    console.display_welcome(__program_name__, __version__)
 
     start = timer()
 
