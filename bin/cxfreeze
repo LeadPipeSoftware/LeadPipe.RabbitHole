@@ -1,0 +1,6 @@
+#!/Users/greg/Code/LeadPipe.RabbitHole/bin/python2.7
+
+from cx_Freeze import main
+
+main()
+
