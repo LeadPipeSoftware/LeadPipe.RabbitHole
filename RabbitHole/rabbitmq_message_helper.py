@@ -30,7 +30,7 @@ class RabbitMQMessageHelper(object):
                         file_to_save.write('[')
                     saved_count = 0
                     for message in messages:
-                        self._console.write_update('Saving {0} messages to {1}'.format(len(messages), save_file))
+                        self._console.write_update('Saving message {0} of {1} to {2}'.format(saved_count + 1, len(messages), save_file))
                         file_to_save.write(json.dumps(message, indent=2))
                         saved_count += 1
                         if saved_count < len(messages):
@@ -62,7 +62,9 @@ class RabbitMQMessageHelper(object):
             try:
                 with open(message_file_name) as json_data:
                     d = json.load(json_data)
-                    return [d]
+                    self._logger.debug('Read {0} messages from {1}'.format(len(d), message_file_name))
+                    # return [d]
+                    return d
             except:
                 return None
 

@@ -35,6 +35,8 @@ class QueueCommand(object):
             self._configuration.simulate,
             self._configuration.verbose)
 
+        self._logger.debug('There were {0} messages in the file'.format(len(messages)))
+
         self._rabbitmq.publish_messages(messages,
                                         self._configuration.rabbit_host_url,
                                         self._configuration.rabbit_host_port,
@@ -110,6 +112,8 @@ class QueueCommand(object):
             messages = self._rabbitmq_message_helper.get_rabbit_messages_from_file(message_source_file,
                                                                                    self._configuration.simulate,
                                                                                    self._configuration.verbose)
+
+            self._logger.debug('There were {0} messages in the file'.format(len(messages)))
 
             self._rabbitmq.publish_messages(messages,
                                             self._configuration.rabbit_host_url,
