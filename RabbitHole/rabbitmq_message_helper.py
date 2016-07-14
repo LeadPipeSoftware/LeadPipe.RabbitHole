@@ -1,5 +1,5 @@
 import json
-
+import re
 import os.path
 
 
@@ -76,8 +76,8 @@ class RabbitMQMessageHelper(object):
 
         all_files = []
 
-        for file in files:
-            all_files.append(os.path.join(folder_name, file))
+        for f in files:
+            all_files.append(os.path.join(folder_name, f))
 
         return all_files
 
@@ -88,15 +88,10 @@ class RabbitMQMessageHelper(object):
         :return: The name of the source queue.
         """
 
-        source_queue = None
-
-        try:
-            source_queue_header_key = self._configuration.source_queue_header_key
-            source_queue = message['properties']['headers'][source_queue_header_key]
-        except KeyError:
-            raise ValueError('The source queue could not be determined using key {0}!'.format(source_queue_header_key))
-
-        return source_queue.split('@', 1)[0]
+        source_queue_matches = self.get_dictionary_field_values(message, self._configuration.source_queue_header_key)
+        source_queue = source_queue_matches[0]
+        self._logger.debug('Determined source queue to be {0}'.format(source_queue))
+        return source_queue
 
     def scrub_message(self, message, elements_to_delete):
         """Scrubs the unnecessary header information out of a RabbitMQ message.
@@ -120,3 +115,46 @@ class RabbitMQMessageHelper(object):
                 self.scrub_message(value, elements_to_delete)
 
         return message
+
+    def get_dictionary_field_values(self, search_dict, field):
+        """Gets a list of dictionary field values from a nested dictionary.
+
+        :param search_dict: The dictionary to search.
+        :param field: The field to search for.
+        :return: A list of matching field values.
+        """
+
+        fields_found = []
+
+        for key, value in search_dict.iteritems():
+
+            if key == field:
+                fields_found.append(value)
+
+            elif isinstance(value, dict):
+                results = self.get_dictionary_field_values(value, field)
+                for result in results:
+                    fields_found.append(result)
+
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, dict):
+                        more_results = self.get_dictionary_field_values(item, field)
+                        for another_result in more_results:
+                            fields_found.append(another_result)
+
+        return fields_found
+
+    def get_path_from_dictionary(self, dct, path):
+        """Gets a nested property from a dictionary
+
+        :param dct: The dictionary to search.
+        :param path: The path to search (ex: 'Field1.Field2.Field3').
+        """
+
+        try:
+            for i, p in re.findall(r'(\d+)|(\w+)', path):
+                dct = dct[p or int(i)]
+            return dct
+        except KeyError:
+            return None

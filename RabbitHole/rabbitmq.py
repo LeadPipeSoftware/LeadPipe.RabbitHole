@@ -116,8 +116,6 @@ class RabbitMQ(object):
 
         processed_messages = 0
 
-        rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost, destination_queue)
-
         if verbose:
             self._console.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
 
@@ -133,6 +131,18 @@ class RabbitMQ(object):
 
                 if not destination_queue:
                     destination_queue = self._rabbitmq_message_helper.get_source_queue(message)
+                    if destination_queue:
+                        self._logger.debug('The destination queue was not specified. Determined to be [{0}].'.format(destination_queue))
+                else:
+                    self._logger.debug('The destination queue was supplied and is [{0}].')
+
+                if not destination_queue:
+                    self._console.write_error('Unable to determine the destination queue!')
+                    self._console.write_hint('Is {0} in the message?'.format(self._configuration.source_queue_header_key))
+                    sys.exit(1)
+
+                rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost,
+                                                           destination_queue)
 
                 if len(messages) > 1:
                     self._console.write_update(

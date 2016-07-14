@@ -34,6 +34,7 @@ def main(args=None):
         logging.basicConfig(filename=__program_name__ + '.log', filemode='w', level=logging.INFO, format=log_format)
     logger = logging.getLogger(__name__)
     logger.info('{0} {1}'.format(__program_name__, __version__))
+    logger.info('Debug mode: {0}'.format(parsed_arguments.debug))
 
     # Set the configuration...
     config = Configuration(logger, parsed_arguments)

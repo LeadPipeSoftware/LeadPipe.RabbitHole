@@ -57,6 +57,14 @@ class Console(object):
         if not self._configuration.silent:
             print('\033[1;31;40m+ ERROR: \033[0m{0}'.format(message))
 
+    def write_hint(self, message):
+        """Writes a hint message to the console.
+
+        :param message: The message to write.
+        """
+        if not self._configuration.silent:
+            print('\033[1;36;40m+ HINT: \033[0m{0}'.format(message))
+
     def write_keyvaluepair(self, key, value):
         """Writes a key and a value pair message to the console.
 
