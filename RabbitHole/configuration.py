@@ -19,7 +19,7 @@ class Configuration(object):
         self._rabbit_password = None
         self._rabbit_vhost = None
         self._source_queue_fields = None
-        self._message_headers_to_remove = None
+        self._fields_to_remove = None
         self._simulate = None
         self._verbose = None
         self._silent = None
@@ -200,8 +200,8 @@ class Configuration(object):
         self._source_queue_fields = value
 
     @property
-    def message_headers_to_remove(self):
-        if self._message_headers_to_remove is None:
+    def fields_to_remove(self):
+        if self._fields_to_remove is None:
 
             # Define the headers to strip out before replaying a message...
             nservicebus_runtime_headers = [
@@ -225,22 +225,22 @@ class Configuration(object):
 
             config_file_value = None
             if self._ignore_config_file is False:
-                if self._config_file.has_option('Messages', 'MessageHeadersToRemove'):
-                    config_file_value = self._config_file.get('Messages', 'MessageHeadersToRemove')
+                if self._config_file.has_option('Messages', 'FieldsToRemove'):
+                    config_file_value = self._config_file.get('Messages', 'FieldsToRemove')
 
             if hasattr(self.command_line_arguments,
-                       'message_headers_to_remove') and self.command_line_arguments.message_headers_to_remove is not None:
-                self.message_headers_to_remove = self.command_line_arguments.message_headers_to_remove
+                       'fields_to_remove') and self.command_line_arguments.fields_to_remove is not None:
+                self.fields_to_remove = self.command_line_arguments.fields_to_remove
             elif config_file_value is not None:
-                self.message_headers_to_remove = config_file_value.split(',')  # Careful!
+                self.fields_to_remove = config_file_value.split(',')  # Careful!
             else:
-                self.message_headers_to_remove = nservicebus_runtime_headers + nservicebus_diagnostic_headers + nservicebus_audit_headers + nservicebus_error_headers
+                self.fields_to_remove = nservicebus_runtime_headers + nservicebus_diagnostic_headers + nservicebus_audit_headers + nservicebus_error_headers
 
-        return self._message_headers_to_remove
+        return self._fields_to_remove
 
-    @message_headers_to_remove.setter
-    def message_headers_to_remove(self, value):
-        self._message_headers_to_remove = value
+    @fields_to_remove.setter
+    def fields_to_remove(self, value):
+        self._fields_to_remove = value
 
     @property
     def simulate(self):

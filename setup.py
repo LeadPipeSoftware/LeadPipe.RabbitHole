@@ -18,7 +18,8 @@ PRODUCT_NAME = 'RabbitHole'
 
 build_exe_options = dict(
     packages=["os"],
-    excludes=[])
+    excludes=[],
+    include_files=['README.md', 'LICENSE', 'RabbitHole/RabbitHole.ini'])
 
 bdist_msi_options = {
     'upgrade_code': '{9E074566-9492-433C-BA5D-391D016D78D6}',

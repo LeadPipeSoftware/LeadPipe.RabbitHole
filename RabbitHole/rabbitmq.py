@@ -150,8 +150,8 @@ class RabbitMQ(object):
                 else:
                     self._console.write_update('Publishing message to {0}'.format(destination_queue))
 
-                self._logger.debug('Scrubbing {0} from message'.format(self._configuration.message_headers_to_remove))
-                message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.message_headers_to_remove)
+                self._logger.debug('Scrubbing {0} from message'.format(self._configuration.fields_to_remove))
+                message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.fields_to_remove)
 
                 json_message = json.dumps(message)
 
