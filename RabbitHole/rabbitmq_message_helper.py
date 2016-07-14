@@ -88,9 +88,16 @@ class RabbitMQMessageHelper(object):
         :return: The name of the source queue.
         """
 
-        source_queue_matches = self.get_dictionary_field_values(message, self._configuration.source_queue_header_key)
-        source_queue = source_queue_matches[0]
-        self._logger.debug('Determined source queue to be {0}'.format(source_queue))
+        source_queue = None
+
+        for source_queue_field in self._configuration.source_queue_fields:
+
+            source_queue_matches = self.get_dictionary_field_values(message, source_queue_field)
+            if source_queue_matches and len(source_queue_matches) > 0:
+                source_queue = source_queue_matches[0]
+                self._logger.debug('Determined the source queue to be {0}'.format(source_queue))
+                pass
+
         return source_queue
 
     def scrub_message(self, message, elements_to_delete):

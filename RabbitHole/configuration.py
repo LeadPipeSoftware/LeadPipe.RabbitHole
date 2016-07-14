@@ -18,7 +18,7 @@ class Configuration(object):
         self._rabbit_username = None
         self._rabbit_password = None
         self._rabbit_vhost = None
-        self._source_queue_header_key = None
+        self._source_queue_fields = None
         self._message_headers_to_remove = None
         self._simulate = None
         self._verbose = None
@@ -177,27 +177,27 @@ class Configuration(object):
         self._rabbit_vhost = value
 
     @property
-    def source_queue_header_key(self):
-        if self._source_queue_header_key is None:
+    def source_queue_fields(self):
+        if self._source_queue_fields is None:
 
             config_file_value = None
             if self._ignore_config_file is False:
-                if self._config_file.has_option('Messages', 'SourceQueueHeaderKey'):
-                    config_file_value = self._config_file.get('Messages', 'SourceQueueHeaderKey')
+                if self._config_file.has_option('Messages', 'SourceQueueFields'):
+                    config_file_value = self._config_file.get('Messages', 'SourceQueueFields')
 
             if hasattr(self.command_line_arguments,
-                       'source_queue_header_key') and self.command_line_arguments.source_queue_header_key is not None:
-                self.source_queue_header_key = self.command_line_arguments.source_queue_header_key
+                       'source_queue_fields') and self.command_line_arguments.source_queue_fields is not None:
+                self.source_queue_fields = self.command_line_arguments.source_queue_fields
             elif config_file_value is not None:
-                self.source_queue_header_key = config_file_value
+                self.source_queue_fields = config_file_value.split(',')  # Careful!
             else:
-                self.source_queue_header_key = 'NServiceBus.FailedQ'
+                self.source_queue_fields = ('NServiceBus.FailedQ', 'NServiceBus.ProcessingEndpoint')
 
-        return self._source_queue_header_key
+        return self._source_queue_fields
 
-    @source_queue_header_key.setter
-    def source_queue_header_key(self, value):
-        self._source_queue_header_key = value
+    @source_queue_fields.setter
+    def source_queue_fields(self, value):
+        self._source_queue_fields = value
 
     @property
     def message_headers_to_remove(self):

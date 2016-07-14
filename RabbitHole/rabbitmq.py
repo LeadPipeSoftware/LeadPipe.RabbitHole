@@ -116,9 +116,6 @@ class RabbitMQ(object):
 
         processed_messages = 0
 
-        if verbose:
-            self._console.write_update('The RabbitMQ URL is {0}'.format(rabbit_url))
-
         with requests.Session() as session:
             # pool_connections is the number of connection pools to cache (default 10)
             # pool_maxsize is the maximum number of connections to save in the pool (default 10)
@@ -130,26 +127,28 @@ class RabbitMQ(object):
                 processed_messages += 1
 
                 if not destination_queue:
+                    self._logger.debug('The destination queue was NOT supplied. Attempting to determine it.')
                     destination_queue = self._rabbitmq_message_helper.get_source_queue(message)
-                    if destination_queue:
-                        self._logger.debug('The destination queue was not specified. Determined to be [{0}].'.format(destination_queue))
                 else:
-                    self._logger.debug('The destination queue was supplied and is [{0}].')
+                    self._logger.debug('The destination queue was supplied.')
 
                 if not destination_queue:
                     self._console.write_error('Unable to determine the destination queue!')
-                    self._console.write_hint('Is {0} in the message?'.format(self._configuration.source_queue_header_key))
+                    self._console.write_hint('Does the message contain any of these fields?')
+                    for field in self._configuration.source_queue_fields:
+                        self._console.write_hint('- {0}'.format(field))
                     sys.exit(1)
 
-                rabbit_url = self.build_rabbit_publish_url(rabbit_host_url, rabbit_host_port, rabbit_vhost,
+                rabbit_url = self.build_rabbit_publish_url(rabbit_host_url,
+                                                           rabbit_host_port,
+                                                           rabbit_vhost,
                                                            destination_queue)
 
                 if len(messages) > 1:
                     self._console.write_update(
                         '{0} of {1} - Publishing message to {2}'.format(processed_messages, len(messages), destination_queue))
                 else:
-                    self._console.write_update(
-                        'Publishing message to {0}'.format(destination_queue))
+                    self._console.write_update('Publishing message to {0}'.format(destination_queue))
 
                 self._logger.debug('Scrubbing {0} from message'.format(self._configuration.message_headers_to_remove))
                 message = self._rabbitmq_message_helper.scrub_message(message, self._configuration.message_headers_to_remove)
