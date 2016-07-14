@@ -4,28 +4,59 @@
 
 RabbitHole is a RabbitMQ message utility. It can:
 
-* Save messages in a queue to a JSON file (snag)
-* Send messages in a JSON file to a queue (queue)
-* Re-queue messages in one queue to another (replay)
+* Save a copy of messages in a queue as a JSON file (snag)
+* Send messages to a queue from a JSON file (queue)
+* Get messages from a queue and put them on another queue (shuttle)
+* Return messages to their source queue (replay)
 
-## Example Usage
+## Commands
 
-### Queue Messages From JSON
+### Snag
 
-```bash
-$ rabbithole queue -d MyRabbitQueue -f message_to_queue.json
-```
-
-### Save Messages as JSON
+Sometimes you want to save a copy of a message in a queue. Hey, you might even want to save the whole queue! That's where the snag command comes in handy.
 
 ```bash
-$ rabbithole snag -q error -m 1 -a snagged_errors.json
+$ ./rabbithole.exe snag -q MyRabbitQueue -m 1 -a snagged.json
 ```
 
-### Replay Messages
+### Queue
+
+What about the other way around? Let's say you want to publish a message using a JSON-formatted source file. That's where the queue command steps in.
 
 ```bash
-$ rabbithole replay -q error -m 1 -d MyRabbitQueue
+$ ./rabbithole.exe queue -d MyRabbitQueue -f snagged.json
 ```
+
+### Shuttle
+
+Need to move messages from one queue to another? The shuttle command has you covered.
+
+```bash
+$ ./rabbithole.exe shuttle -q FooQueue -d BarQueue -m 5
+```
+
+### Replay
+
+What about simply re-playing a message by returning it to its source queue? Fire up the handy replay command!
+
+```bash
+$ ./rabbithole.exe replay -q FooQueue -m 5
+```
+
+## Configuration
+
+RabbitHole is a command-line tool and almost every option can be specified as an argument. To see what you can do, just ask!
+
+```bash
+$ ./rabbithole.exe -h
+```
+
+To get help with a specific command simply supply the command name.
+
+```bash
+$ ./rabbithole.exe replay -h
+```
+
+In addition, RabbitHole supports the (optional) use of a configuration file.
 
 [Lead Pipe Software](http://www.leadpipesoftware.com)
