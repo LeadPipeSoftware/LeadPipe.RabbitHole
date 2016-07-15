@@ -3,17 +3,22 @@
 User Guide
 ============
 
-SNAG: Save a copy of messages in a queue as a JSON file
+Snag
 -------------------------------------------------------
+
+Save a copy of messages in a queue as a JSON file.
 
 Sometimes you want to save a copy of a message in a queue. Hey, you might even want to save the whole queue! That's where the snag command comes in handy.
 
-```bash
-$ ./rabbithole.exe snag -q MyRabbitQueue -m 1 -a snagged.json
-```
+::
 
-QUEUE: Send messages to a queue from a JSON file
+    $ ./rabbithole.exe snag -q MyRabbitQueue -m 1 -a snagged.json
+
+
+Queue
 ------------------------------------------------
+
+Send messages to a queue from a JSON file.
 
 What about the other way around? Let's say you want to publish a message using a JSON-formatted source file. That's where the queue command steps in.
 
@@ -23,8 +28,10 @@ What about the other way around? Let's say you want to publish a message using a
 
 You can specify a JSON file with a single message, a JSON file containing an array of multiple messages, or a folder containing JSON files.
 
-SHUTTLE: Get messages from a queue and put them on another queue
+Shuttle
 ----------------------------------------------------------------
+
+Get messages from a queue and put them on another queue.
 
 Need to move messages from one queue to another? The shuttle command has you covered.
 
@@ -34,8 +41,10 @@ Need to move messages from one queue to another? The shuttle command has you cov
 
 You can shuttle a single message or as many messages as you'd like!
 
-REPLAY: Return messages to their source queue
+Replay
 ---------------------------------------------
+
+Return messages to their source queue.
 
 What about simply re-playing a message by returning it to its source queue? Fire up the handy replay command!
 
