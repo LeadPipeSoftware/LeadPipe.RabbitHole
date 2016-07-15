@@ -11,8 +11,7 @@ RabbitHole is a RabbitMQ message utility. It can:
 
 Read the [full documentation here](https://rabbithole.readthedocs.io/en/latest/)!
 
-[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/LeadPipeSoftware/LeadPipe.RabbitHole/blob/master/LICENSE)
+[![Lead Pipe Software](https://img.shields.io/badge/made by-Lead Pipe Software-orange.svg?style=flat)](http://www.leadpipesoftware.com)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/LeadPipeSoftware/LeadPipe.RabbitHole/master/LICENSE)
 [![Docs](https://readthedocs.org/projects/rabbithole/badge/)](https://rabbithole.readthedocs.io/en/latest/)
 [![First Timer Friendly](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat)](http://www.firsttimersonly.com/)
-
-[Lead Pipe Software](http://www.leadpipesoftware.com)
