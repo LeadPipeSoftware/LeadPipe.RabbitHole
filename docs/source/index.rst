@@ -6,6 +6,16 @@
 LeadPipe RabbitHole
 ===================
 
+`Source Code <https://github.com/LeadPipeSoftware/LeadPipe.RabbitHole>`_ |
+`Report Issues <https://github.com/LeadPipeSoftware/LeadPipe.RabbitHole/issues>`_
+
+RabbitHole is a RabbitMQ message utility. It can:
+
+* Save a copy of messages in a queue as a JSON file (snag)
+* Send messages to a queue from a JSON file (queue)
+* Get messages from a queue and put them on another queue (shuttle)
+* Return messages to their source queue (replay)
+
 Contents:
 
 .. toctree::
@@ -14,11 +24,4 @@ Contents:
    installation
    user_guide
    issues
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

@@ -6,14 +6,14 @@ Installation
 Windows
 -------
 
-Content goes here.
+Coming very soon!
 
 OS X
 ----
 
-Content goes here.
+Coming very soon!
 
 Linux
 -----
 
-Content goes here.
+Coming very soon!
